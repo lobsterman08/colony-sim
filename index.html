@@ -6,18 +6,18 @@
     <title>Colony Forge</title>
     <style>
       :root {
-        --bg-0: #0c1721;
-        --bg-1: #101f2d;
-        --panel: rgba(14, 22, 28, 0.9);
-        --panel-soft: rgba(16, 28, 35, 0.78);
-        --border: rgba(154, 191, 217, 0.22);
+        --bg-0: #0b1116;
+        --bg-1: #131d26;
+        --panel: rgba(15, 22, 28, 0.9);
+        --panel-soft: rgba(19, 31, 38, 0.8);
+        --border: rgba(165, 196, 220, 0.23);
         --text: #edf7ff;
-        --muted: #9db6c7;
-        --accent: #7be0b8;
-        --accent-strong: #47c49f;
-        --gold: #f2d37c;
-        --danger: #ff8e8e;
-        --shadow: rgba(0, 0, 0, 0.35);
+        --muted: #9bb3c2;
+        --accent: #6ce0a2;
+        --accent-2: #4cd0a8;
+        --gold: #f4d78a;
+        --danger: #ff8d8d;
+        --shadow: rgba(0,0,0,0.42);
       }
 
       * { box-sizing: border-box; }
@@ -27,14 +27,11 @@
         height: 100%;
         background: var(--bg-0);
         color: var(--text);
-        font-family: Inter, "Segoe UI", sans-serif;
+        font-family: "Segoe UI", sans-serif;
         overflow: hidden;
       }
 
-      body {
-        display: flex;
-        flex-direction: column;
-      }
+      body { display: flex; }
 
       button {
         font: inherit;
@@ -51,10 +48,10 @@
       .topbar {
         display: grid;
         grid-template-columns: 1fr auto auto;
-        align-items: center;
         gap: 12px;
+        align-items: center;
         padding: 10px 14px;
-        background: rgba(8, 14, 18, 0.9);
+        background: rgba(8,14,18,0.94);
         border-bottom: 1px solid var(--border);
       }
 
@@ -65,76 +62,77 @@
       }
 
       .brand {
-        font-size: 1.16rem;
         font-weight: 800;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
+        font-size: 1.15rem;
       }
 
       .time-label {
+        font-size: 0.82rem;
         color: var(--muted);
-        font-size: 0.84rem;
       }
 
       .resource-bar {
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
         justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
       }
 
       .resource-pill {
-        padding: 6px 10px;
-        border-radius: 999px;
         border: 1px solid var(--border);
+        border-radius: 999px;
         background: rgba(255,255,255,0.025);
         color: var(--text);
-        font-size: 0.8rem;
+        padding: 6px 10px;
+        font-size: 0.78rem;
         white-space: nowrap;
       }
 
       .controls {
         display: flex;
-        gap: 8px;
         align-items: center;
+        gap: 8px;
       }
 
-      .btn, .speed-btn, .mini-btn, .task-btn {
+      .btn, .mini-btn, .speed-btn, .task-btn, .priority-btn {
         appearance: none;
-        border: 1px solid rgba(255,255,255,0.08);
         background: rgba(255,255,255,0.04);
-        color: var(--text);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 10px;
+        color: var(--text);
         padding: 8px 10px;
         cursor: pointer;
-        transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+        transition: 0.12s ease;
       }
 
-      .btn:active, .speed-btn:active, .mini-btn:active, .task-btn:active {
+      .btn:active, .mini-btn:active, .speed-btn:active, .task-btn:active, .priority-btn:active {
         transform: scale(0.98);
       }
 
       .btn.accent {
-        background: linear-gradient(180deg, var(--accent), var(--accent-strong));
-        color: #072b1f;
+        background: linear-gradient(180deg, var(--accent), var(--accent-2));
+        color: #072b1e;
         font-weight: 700;
       }
 
       .speed-btn.active {
-        background: rgba(123, 224, 184, 0.12);
-        border-color: rgba(123, 224, 184, 0.6);
+        background: rgba(108, 224, 162, 0.1);
+        border-color: rgba(108,224,162,0.7);
       }
 
       .layout {
         display: grid;
-        grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(200px, 260px);
+        grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(220px, 260px);
         flex: 1;
         min-height: 0;
       }
 
       .panel {
-        padding: 12px;
         background: var(--panel);
         border-right: 1px solid var(--border);
+        padding: 12px;
         overflow: auto;
       }
 
@@ -145,15 +143,15 @@
 
       .panel h3 {
         margin: 0 0 8px 0;
-        font-size: 0.75rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+        font-size: 0.72rem;
         color: var(--muted);
       }
 
       .box {
+        background: rgba(255,255,255,0.025);
         border: 1px solid var(--border);
-        background: rgba(255,255,255,0.02);
         border-radius: 12px;
         padding: 10px;
         margin-bottom: 12px;
@@ -177,8 +175,8 @@
       }
 
       .colonist-item.selected {
-        border-color: rgba(123, 224, 184, 0.56);
-        background: rgba(123, 224, 184, 0.08);
+        border-color: rgba(108,224,162,0.65);
+        background: rgba(108,224,162,0.08);
       }
 
       .avatar {
@@ -188,40 +186,45 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #7d8d9c, #4a5b67);
-        font-size: 0.75rem;
+        background: linear-gradient(180deg, #87a2b4, #4d6071);
         font-weight: 700;
+        font-size: 0.72rem;
       }
 
       .status-line {
         display: flex;
         justify-content: space-between;
         gap: 8px;
-        color: var(--muted);
-        font-size: 0.8rem;
         margin: 8px 0;
+        font-size: 0.8rem;
+        color: var(--muted);
       }
 
       .status-line strong {
         color: var(--text);
       }
 
-      .task-grid {
+      .task-grid, .priority-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
       }
 
-      .task-btn {
+      .task-btn, .priority-btn {
         width: 100%;
         font-size: 0.75rem;
         padding: 7px 8px;
       }
 
+      .priority-btn.active {
+        border-color: rgba(108,224,162,0.8);
+        background: rgba(108,224,162,0.08);
+      }
+
       .viewport-shell {
         position: relative;
         overflow: hidden;
-        background: #0c1b24;
+        background: #0a1721;
         min-height: 0;
       }
 
@@ -229,7 +232,7 @@
         display: block;
         width: 100%;
         height: 100%;
-        background: #0a1821;
+        background: #0a1721;
         touch-action: none;
         user-select: none;
       }
@@ -238,12 +241,12 @@
         position: absolute;
         left: 12px;
         top: 12px;
-        width: min(300px, calc(100% - 24px));
-        max-height: 70%;
-        background: rgba(8, 14, 18, 0.94);
+        width: min(310px, calc(100% - 24px));
+        max-height: 72%;
+        background: rgba(8,14,18,0.95);
         border: 1px solid var(--border);
         border-radius: 14px;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        box-shadow: 0 14px 30px rgba(0,0,0,0.35);
         overflow: hidden;
         transition: transform 0.22s ease, opacity 0.22s ease;
       }
@@ -256,8 +259,8 @@
 
       .panel-header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: center;
         padding: 10px 12px;
         border-bottom: 1px solid var(--border);
         font-weight: 700;
@@ -268,7 +271,6 @@
         flex-direction: column;
         gap: 12px;
         padding: 10px;
-        max-height: 100%;
         overflow: auto;
       }
 
@@ -280,14 +282,14 @@
       }
 
       .build-category-title {
-        padding: 8px 10px;
         background: rgba(255,255,255,0.03);
+        padding: 8px 10px;
         font-weight: 700;
       }
 
       .build-items {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0,1fr));
         gap: 8px;
         padding: 10px;
       }
@@ -303,8 +305,8 @@
       }
 
       .build-item.active {
-        border-color: rgba(123,224,184,0.7);
-        background: rgba(123,224,184,0.08);
+        border-color: rgba(108,224,162,0.8);
+        background: rgba(108,224,162,0.08);
       }
 
       .toast {
@@ -312,11 +314,11 @@
         left: 50%;
         bottom: 18px;
         transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+        padding: 8px 14px;
+        border-radius: 999px;
         background: rgba(10,17,22,0.96);
         border: 1px solid var(--border);
-        border-radius: 999px;
-        padding: 8px 14px;
-        opacity: 0;
         transition: transform 0.18s ease, opacity 0.18s ease;
         pointer-events: none;
       }
@@ -330,23 +332,22 @@
         display: flex;
         justify-content: center;
         gap: 10px;
-        padding: 10px 12px 14px;
         border-top: 1px solid var(--border);
-        background: rgba(8, 14, 18, 0.9);
+        background: rgba(8,14,18,0.9);
+        padding: 10px 12px 14px;
       }
 
       .alert-item {
+        margin: 8px 0;
         padding-left: 8px;
         border-left: 3px solid var(--gold);
-        margin: 8px 0;
-        color: var(--text);
         font-size: 0.8rem;
       }
 
       .log-entry {
-        color: var(--muted);
-        font-size: 0.78rem;
         margin: 4px 0;
+        font-size: 0.78rem;
+        color: var(--muted);
       }
 
       @media (max-width: 920px) {
@@ -361,19 +362,13 @@
           justify-items: center;
         }
       }
-
-      @media (orientation: portrait) {
-        .bottom-toolbar {
-          padding-bottom: calc(12px + env(safe-area-inset-bottom));
-        }
-      }
     </style>
   </head>
   <body>
     <div id="app">
       <header class="topbar">
         <div class="brand-wrap">
-          <div class="brand">Colony Forge</div>
+          <div class="brand">COLONY FORGE</div>
           <div id="timeLabel" class="time-label">Day 1</div>
         </div>
 
@@ -429,18 +424,37 @@
     </div>
 
     <script>
-      (function () {
+      (() => {
         const TILE_SIZE = 32;
         const WORLD_SIZE = 90;
-        const SAVE_KEY = 'colony_forge_save_v1';
+        const SAVE_KEY = 'colony_forge_save_v2';
+
+        const TASKS = {
+          gatherWood: 'Gather Wood',
+          gatherStone: 'Gather Stone',
+          farm: 'Farm',
+          rest: 'Rest',
+          eat: 'Eat',
+          clear: 'Clear',
+          build: 'Build'
+        };
+
+        const PRIORITY_RANK = {
+          low: 1,
+          normal: 2,
+          high: 3,
+          urgent: 4
+        };
+
+        const PRIORITY_NAMES = ['Low', 'Normal', 'High', 'Urgent'];
 
         const BUILDINGS = {
-          wall: { label: 'Wall', color: '#c4ced6', cost: { stone: 2 }, buildTime: 2 },
-          floor: { label: 'Floor', color: '#8599a9', cost: { wood: 1 }, buildTime: 1 },
-          bed: { label: 'Bed', color: '#d9ab6d', cost: { wood: 2, stone: 1 }, buildTime: 3 },
-          storage: { label: 'Storage', color: '#d7b98d', cost: { wood: 3, stone: 1 }, buildTime: 3 },
-          campfire: { label: 'Campfire', color: '#f39c4a', cost: { wood: 2, stone: 1 }, buildTime: 4 },
-          farm: { label: 'Crop Plot', color: '#78c76c', cost: { wood: 2 }, buildTime: 3 }
+          wall: { label: 'Wall', color: '#c7d0d9', cost: { stone: 2 }, buildTime: 2 },
+          floor: { label: 'Floor', color: '#8c9aa8', cost: { wood: 1 }, buildTime: 1 },
+          bed: { label: 'Bed', color: '#d8af73', cost: { wood: 2, stone: 1 }, buildTime: 3 },
+          storage: { label: 'Storage', color: '#d6b98d', cost: { wood: 3, stone: 1 }, buildTime: 3 },
+          campfire: { label: 'Campfire', color: '#f39d54', cost: { wood: 2, stone: 1 }, buildTime: 4 },
+          farm: { label: 'Crop Plot', color: '#7aca6d', cost: { wood: 2 }, buildTime: 3 }
         };
 
         const BUILD_CATEGORIES = {
@@ -460,13 +474,8 @@
 
         const DEFAULT_RESOURCES = { wood: 24, stone: 18, food: 20, cloth: 2, metal: 0 };
 
-        function clamp(value, min, max) {
-          return Math.min(max, Math.max(min, value));
-        }
-
-        function randBetween(min, max) {
-          return min + Math.random() * (max - min);
-        }
+        const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+        const randBetween = (min, max) => min + Math.random() * (max - min);
 
         function createWorld(seed) {
           const tiles = new Map();
@@ -480,11 +489,9 @@
               const ny = y / WORLD_SIZE;
               const noise = Math.sin((nx + seed) * 18) + Math.cos((ny - seed) * 14) + Math.sin((x + y) * 0.12 + seed);
               let tile = 'grass';
-
               if (noise > 1.9) tile = 'water';
               else if (noise < -1.5) tile = 'stone';
               else if (x > WORLD_SIZE * 0.7 || y > WORLD_SIZE * 0.74) tile = 'sand';
-
               tiles.set(`${x},${y}`, tile);
             }
           }
@@ -509,20 +516,28 @@
         }
 
         function createColonist(index) {
+          const names = ['Ari', 'Mira', 'Rowan', 'Juno', 'Tess', 'Ivo', 'Nia', 'Cai'];
           return {
-            id: 'c-' + Date.now() + '-' + index,
-            name: ['Ari', 'Mira', 'Rowan', 'Juno', 'Tess', 'Ivo', 'Nia', 'Cai'][index % 8],
+            id: `c-${Date.now()}-${index}`,
+            name: names[index % names.length],
             x: 18 + index * 0.7,
             y: 18 + index * 0.5,
             hunger: 72,
             sleep: 78,
             fun: 70,
+            mood: 78,
+            health: 100,
+            priority: 'normal',
             job: 'wander',
             task: null,
             target: null,
-            mood: 0.8,
-            health: 100,
-            tint: ['#dfeaf8', '#d7c0b6', '#cfe0ff', '#ebd7ad'][index % 4]
+            tint: ['#dfeaf8', '#d4b8a7', '#d2dff7', '#e6d7b0'][index % 4],
+            skills: {
+              construction: 1 + Math.random() * 2,
+              mining: 1 + Math.random() * 2,
+              farming: 1 + Math.random() * 2,
+              crafting: 1 + Math.random() * 2
+            }
           };
         }
 
@@ -530,8 +545,8 @@
           this.world = createWorld(Math.random() * 1000);
           this.colonists = [];
           this.resources = { ...DEFAULT_RESOURCES };
-          this.camera = { x: 0, y: 0, zoom: 1 };
           this.selectedColonistId = null;
+          this.camera = { x: 0, y: 0, zoom: 1 };
           this.speed = 1;
           this.paused = false;
           this.day = 1;
@@ -539,10 +554,10 @@
           this.buildMode = null;
           this.buildOpen = true;
           this.previewTile = null;
-          this.log = ['World generated.'];
-          this.alerts = ['The colony is calm.'];
           this.dragging = null;
           this.lastFrame = 0;
+          this.log = ['World generated.'];
+          this.alerts = ['The colony is calm.'];
 
           this.canvas = document.getElementById('gameCanvas');
           this.ctx = this.canvas.getContext('2d');
@@ -572,146 +587,110 @@
         Game.prototype.setupUI = function () {
           const that = this;
 
-          document.getElementById('pauseBtn').addEventListener('click', function () {
-            that.paused = !that.paused;
-            this.textContent = that.paused ? 'Resume' : 'Pause';
+          this.pauseBtn.addEventListener('click', () => {
+            this.paused = !this.paused;
+            this.pauseBtn.textContent = this.paused ? 'Resume' : 'Pause';
           });
 
-          document.querySelectorAll('.speed-btn').forEach(function (button) {
+          document.querySelectorAll('.speed-btn').forEach((button) => {
             button.addEventListener('click', function () {
               that.speed = Number(this.dataset.speed);
-              document.querySelectorAll('.speed-btn').forEach(function (btn) {
+              document.querySelectorAll('.speed-btn').forEach((btn) => {
                 btn.classList.toggle('active', btn === button);
               });
             });
           });
 
-          document.getElementById('buildToggleBtn').addEventListener('click', function () {
-            if (that.buildMode) {
-              that.exitBuildMode();
+          document.getElementById('buildToggleBtn').addEventListener('click', () => {
+            if (this.buildMode) {
+              this.exitBuildMode();
+              this.showToast('Build mode off');
             } else {
-              that.toggleBuildPanel();
-              that.buildMode = 'wall';
-              that.showToast('Build mode: Wall');
-              that.refreshBuildButtons();
-              that.buildToggleBtn.textContent = 'Build: On';
+              this.buildMode = 'wall';
+              this.buildOpen = true;
+              this.buildPanel.classList.remove('closed');
+              this.refreshBuildButtons();
+              this.showToast('Build mode: Wall');
             }
           });
 
-          document.getElementById('hideBuildBtn').addEventListener('click', function () {
-            that.exitBuildMode();
-            that.toggleBuildPanel();
+          document.getElementById('hideBuildBtn').addEventListener('click', () => {
+            this.exitBuildMode();
+            this.buildOpen = false;
+            this.buildPanel.classList.add('closed');
           });
 
-          document.getElementById('saveBtn').addEventListener('click', function () {
-            that.saveGame();
-          });
+          document.getElementById('saveBtn').addEventListener('click', () => this.saveGame());
+          document.getElementById('loadBtn').addEventListener('click', () => this.loadGame());
+          document.getElementById('newWorldBtn').addEventListener('click', () => this.newWorld());
 
-          document.getElementById('loadBtn').addEventListener('click', function () {
-            that.loadGame();
-          });
-
-          document.getElementById('newWorldBtn').addEventListener('click', function () {
-            that.newWorld();
-          });
-
-          this.buildCategories.addEventListener('click', function (event) {
+          this.buildCategories.addEventListener('click', (event) => {
             const item = event.target.closest('.build-item');
             if (!item) return;
             const type = item.dataset.type;
-            if (that.buildMode === type) {
-              that.exitBuildMode();
-              that.buildToggleBtn.textContent = 'Build';
-              that.showToast('Build mode off');
+            if (this.buildMode === type) {
+              this.exitBuildMode();
+              this.showToast('Build mode off');
               return;
             }
-            that.buildMode = type;
-            that.buildOpen = true;
-            that.buildPanel.classList.remove('closed');
-            that.refreshBuildButtons();
-            that.showToast('Build mode: ' + BUILDINGS[type].label);
-            that.buildToggleBtn.textContent = 'Build: On';
+            this.buildMode = type;
+            this.buildOpen = true;
+            this.buildPanel.classList.remove('closed');
+            this.refreshBuildButtons();
+            this.showToast(`Build mode: ${BUILDINGS[type].label}`);
           });
 
-          window.addEventListener('resize', function () {
-            that.resizeCanvas();
-          });
+          window.addEventListener('resize', () => this.resizeCanvas());
 
-          this.canvas.addEventListener('pointerdown', function (event) {
-            that.handlePointerDown(event);
-          });
-
-          this.canvas.addEventListener('pointermove', function (event) {
-            that.handlePointerMove(event);
-          });
-
-          this.canvas.addEventListener('pointerup', function () {
-            that.dragging = null;
-          });
-
-          this.canvas.addEventListener('pointerleave', function () {
-            that.dragging = null;
-          });
-
-          this.canvas.addEventListener('contextmenu', function (event) {
+          this.canvas.addEventListener('pointerdown', (event) => this.handlePointerDown(event));
+          this.canvas.addEventListener('pointermove', (event) => this.handlePointerMove(event));
+          this.canvas.addEventListener('pointerup', () => { this.dragging = null; });
+          this.canvas.addEventListener('pointerleave', () => { this.dragging = null; });
+          this.canvas.addEventListener('contextmenu', (event) => {
             event.preventDefault();
-            if (that.buildMode) {
-              that.exitBuildMode();
-              that.buildToggleBtn.textContent = 'Build';
-              that.showToast('Build mode canceled');
+            if (this.buildMode) {
+              this.exitBuildMode();
+              this.showToast('Build mode canceled');
             }
           });
 
-          this.canvas.addEventListener('wheel', function (event) {
+          this.canvas.addEventListener('wheel', (event) => {
             event.preventDefault();
             const delta = event.deltaY * -0.0015;
-            that.camera.zoom = clamp(that.camera.zoom + delta, 0.8, 2.4);
+            this.camera.zoom = clamp(this.camera.zoom + delta, 0.8, 2.4);
           }, { passive: false });
 
-          window.addEventListener('keydown', function (event) {
+          window.addEventListener('keydown', (event) => {
             if (event.key === ' ') {
               event.preventDefault();
-              that.paused = !that.paused;
-              that.pauseBtn.textContent = that.paused ? 'Resume' : 'Pause';
+              this.paused = !this.paused;
+              this.pauseBtn.textContent = this.paused ? 'Resume' : 'Pause';
             }
             if (event.key.toLowerCase() === 'b') {
-              that.buildOpen = !that.buildOpen;
-              that.buildPanel.classList.toggle('closed', !that.buildOpen);
+              this.buildOpen = !this.buildOpen;
+              this.buildPanel.classList.toggle('closed', !this.buildOpen);
             }
             if (event.key === 'Escape') {
-              that.exitBuildMode();
-              that.buildToggleBtn.textContent = 'Build';
-              that.showToast('Build mode off');
+              this.exitBuildMode();
+              this.showToast('Build mode off');
             }
             if (event.key.toLowerCase() === 's') {
-              that.saveGame();
+              this.saveGame();
             }
           });
-        };
-
-        Game.prototype.refreshBuildButtons = function () {
-          document.querySelectorAll('.build-item').forEach(function (button) {
-            button.classList.toggle('active', this.buildMode === button.dataset.type);
-          }, this);
         };
 
         Game.prototype.exitBuildMode = function () {
           this.buildMode = null;
           this.previewTile = null;
           this.refreshBuildButtons();
-          this.buildPanel.classList.remove('closed');
-          this.buildOpen = true;
+          this.buildToggleBtn.textContent = 'Build';
         };
 
-        Game.prototype.spawnColonists = function () {
-          this.colonists = [];
-          for (let i = 0; i < 6; i++) {
-            this.colonists.push(createColonist(i));
-          }
-          this.selectedColonistId = this.colonists[0].id;
-          this.world.structures.push({ type: 'bed', x: 16, y: 16, built: true, progress: 1 });
-          this.world.structures.push({ type: 'storage', x: 17, y: 16, built: true, progress: 1 });
-          this.world.structures.push({ type: 'campfire', x: 19, y: 18, built: true, progress: 1 });
+        Game.prototype.refreshBuildButtons = function () {
+          document.querySelectorAll('.build-item').forEach((button) => {
+            button.classList.toggle('active', this.buildMode === button.dataset.type);
+          });
         };
 
         Game.prototype.populateBuildMenu = function () {
@@ -720,33 +699,35 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'build-category';
             wrapper.innerHTML = '<div class="build-category-title">' + categoryName + '</div>' +
-              '<div class="build-items">' + itemList.map(function (type) {
-                return '<button class="build-item" data-type="' + type + '">' + BUILDINGS[type].label + '</button>';
-              }).join('') + '</div>';
+              '<div class="build-items">' + itemList.map((type) => '<button class="build-item" data-type="' + type + '">' + BUILDINGS[type].label + '</button>').join('') + '</div>';
             this.buildCategories.appendChild(wrapper);
           }
-        };
-
-        Game.prototype.toggleBuildPanel = function () {
-          this.buildOpen = !this.buildOpen;
-          this.buildPanel.classList.toggle('closed', !this.buildOpen);
         };
 
         Game.prototype.showToast = function (message) {
           this.toast.textContent = message;
           this.toast.classList.add('visible');
-          const toast = this.toast;
           clearTimeout(this.toastTimer);
-          this.toastTimer = setTimeout(function () {
-            toast.classList.remove('visible');
-          }, 1100);
+          this.toastTimer = setTimeout(() => this.toast.classList.remove('visible'), 1100);
+        };
+
+        Game.prototype.spawnColonists = function () {
+          this.colonists = [];
+          for (let i = 0; i < 6; i++) {
+            this.colonists.push(createColonist(i));
+          }
+          this.selectedColonistId = this.colonists[0].id;
+
+          this.world.structures.push({ type: 'bed', x: 16, y: 16, built: true, progress: 1 });
+          this.world.structures.push({ type: 'storage', x: 17, y: 16, built: true, progress: 1 });
+          this.world.structures.push({ type: 'campfire', x: 19, y: 18, built: true, progress: 1 });
         };
 
         Game.prototype.resizeCanvas = function () {
           const rect = this.canvas.parentElement.getBoundingClientRect();
           const ratio = window.devicePixelRatio || 1;
-          this.canvas.width = Math.max(320, Math.round(rect.width * ratio));
-          this.canvas.height = Math.max(220, Math.round(rect.height * ratio));
+          this.canvas.width = Math.round(rect.width * ratio);
+          this.canvas.height = Math.round(rect.height * ratio);
           this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         };
 
@@ -771,14 +752,11 @@
             return;
           }
 
-          const clicked = this.colonists.find(function (colonist) {
+          const clicked = this.colonists.find((colonist) => {
             return Math.abs(colonist.x - tileX) < 0.5 && Math.abs(colonist.y - tileY) < 0.5;
           });
-          if (clicked) {
-            this.selectedColonistId = clicked.id;
-          } else {
-            this.selectedColonistId = null;
-          }
+
+          this.selectedColonistId = clicked ? clicked.id : null;
           this.renderUI();
         };
 
@@ -802,31 +780,26 @@
             return;
           }
 
-          const canAfford = Object.keys(buildingDef.cost || {}).every(function (key) {
-            return this.resources[key] >= buildingDef.cost[key];
-          }, this);
-
+          const canAfford = Object.entries(buildingDef.cost || {}).every(([key, cost]) => this.resources[key] >= cost);
           if (!canAfford) {
             this.showToast('Not enough resources');
             return;
           }
 
-          for (const [key, cost] of Object.entries(buildingDef.cost || {})) {
+          Object.entries(buildingDef.cost || {}).forEach(([key, cost]) => {
             this.resources[key] -= cost;
-          }
+          });
 
           this.world.structures.push({ type: this.buildMode, x: tx, y: ty, built: false, progress: 0 });
-          this.log.unshift('Built ' + buildingDef.label + ' at ' + tx + ', ' + ty + '.');
-          this.showToast(buildingDef.label + ' placed');
+          this.log.unshift(`Built ${buildingDef.label} at ${tx}, ${ty}.`);
+          this.showToast(`${buildingDef.label} placed`);
           this.renderUI();
         };
 
         Game.prototype.isValidBuildTile = function (x, y) {
           if (x < 0 || y < 0 || x >= WORLD_SIZE || y >= WORLD_SIZE) return false;
-          if (this.world.tiles.get(x + ',' + y) === 'water') return false;
-          return !this.world.structures.some(function (structure) {
-            return structure.x === x && structure.y === y;
-          });
+          if (this.world.tiles.get(`${x},${y}`) === 'water') return false;
+          return !this.world.structures.some((structure) => structure.x === x && structure.y === y);
         };
 
         Game.prototype.loop = function (ts) {
@@ -871,132 +844,6 @@
           }
         };
 
-        Game.prototype.assignTask = function (task, targetType) {
-          const colonist = this.getSelectedColonist();
-          if (!colonist) return;
-          colonist.task = task;
-          colonist.targetType = targetType || null;
-          colonist.target = null;
-          this.log.unshift(colonist.name + ' assigned to ' + task + '.');
-          this.showToast(colonist.name + ' -> ' + task);
-          this.renderUI();
-        };
-
-        Game.prototype.getSelectedColonist = function () {
-          if (!this.selectedColonistId) return null;
-          return this.colonists.find(function (colonist) {
-            return colonist.id === this.selectedColonistId;
-          }.bind(this)) || null;
-        };
-
-        Game.prototype.updateColonists = function (dt) {
-          const that = this;
-
-          this.colonists.forEach(function (colonist) {
-            colonist.hunger = clamp(colonist.hunger - dt * 0.7, 0, 100);
-            colonist.sleep = clamp(colonist.sleep - dt * 0.42, 0, 100);
-            colonist.fun = clamp(colonist.fun - dt * 0.25, 0, 100);
-
-            if (colonist.task === 'rest') {
-              colonist.job = 'rest';
-              colonist.sleep = clamp(colonist.sleep + dt * 18, 0, 100);
-              if (colonist.sleep > 70) {
-                colonist.task = null;
-              }
-              return;
-            }
-
-            if (colonist.task === 'eat') {
-              colonist.job = 'eat';
-              if (that.resources.food > 0) {
-                that.resources.food -= 1;
-                colonist.hunger = clamp(colonist.hunger + 45, 0, 100);
-                colonist.task = null;
-              }
-              return;
-            }
-
-            if (colonist.task === 'gatherWood') {
-              colonist.job = 'gather wood';
-              gatherNearestResource(that, colonist, 'tree', 'wood');
-              if (that.resources.wood > 24) colonist.task = null;
-              return;
-            }
-
-            if (colonist.task === 'gatherStone') {
-              colonist.job = 'gather stone';
-              gatherNearestResource(that, colonist, 'rock', 'stone');
-              if (that.resources.stone > 20) colonist.task = null;
-              return;
-            }
-
-            if (colonist.task === 'farm') {
-              colonist.job = 'farm';
-              const matureCrop = that.world.cropPlots.find(function (plot) {
-                return plot.mature;
-              });
-              if (matureCrop) {
-                that.resources.food += that.harvestCrop(matureCrop.x, matureCrop.y);
-                colonist.task = null;
-                return;
-              }
-              const plot = maybeCreateFarmPlot(that, colonist);
-              if (plot) {
-                moveTowardTarget(colonist, plot.x, plot.y, 0.12);
-              }
-              return;
-            }
-
-            if (colonist.hunger < 35 && that.resources.food > 0) {
-              that.resources.food -= 1;
-              colonist.hunger = clamp(colonist.hunger + 40, 0, 100);
-              colonist.job = 'eat';
-              return;
-            }
-
-            if (colonist.sleep < 25) {
-              colonist.job = 'rest';
-              colonist.sleep = clamp(colonist.sleep + dt * 16, 0, 100);
-              return;
-            }
-
-            if (that.resources.wood < 22 && nearestNode(that.world, colonist.x, colonist.y, 'tree')) {
-              colonist.job = 'gather';
-              gatherNearestResource(that, colonist, 'tree', 'wood');
-              return;
-            }
-
-            if (that.resources.stone < 18 && nearestNode(that.world, colonist.x, colonist.y, 'rock')) {
-              colonist.job = 'gather';
-              gatherNearestResource(that, colonist, 'rock', 'stone');
-              return;
-            }
-
-            if (that.resources.food < 30) {
-              const crop = that.world.cropPlots.find(function (plot) {
-                return plot.mature;
-              });
-              if (crop) {
-                that.resources.food += that.harvestCrop(crop.x, crop.y);
-              } else {
-                const plot = maybeCreateFarmPlot(that, colonist);
-                if (plot) {
-                  colonist.job = 'farm';
-                  moveTowardTarget(colonist, plot.x, plot.y, 0.12);
-                  return;
-                }
-              }
-            }
-
-            if (Math.random() < 0.012) {
-              wanderTowards(colonist, randBetween(18, 22), randBetween(16, 22));
-              colonist.job = 'wander';
-            } else {
-              colonist.job = 'wander';
-            }
-          });
-        };
-
         function nearestNode(world, x, y, type) {
           let best = null;
           let bestDist = Infinity;
@@ -1011,6 +858,16 @@
           return best;
         }
 
+        function moveTowardTarget(colonist, tx, ty, speed) {
+          const dx = tx - colonist.x;
+          const dy = ty - colonist.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const moveX = (dx / dist) * speed;
+          const moveY = (dy / dist) * speed;
+          colonist.x = clamp(colonist.x + moveX, 0, WORLD_SIZE - 1);
+          colonist.y = clamp(colonist.y + moveY, 0, WORLD_SIZE - 1);
+        }
+
         function gatherNearestResource(game, colonist, type, resourceType) {
           const node = nearestNode(game.world, colonist.x, colonist.y, type);
           if (!node) return;
@@ -1023,7 +880,7 @@
                 game.world.resourceNodes.splice(index, 1);
               }
               game.resources[resourceType] += 1 + (type === 'tree' ? 1 : 0);
-              colonist.fun = clamp(colonist.fun + 5, 0, 100);
+              colonist.fun = clamp(colonist.fun + 6, 0, 100);
             }
             return;
           }
@@ -1031,71 +888,188 @@
         }
 
         function maybeCreateFarmPlot(game, colonist) {
-          if (game.world.cropPlots.length < 8) {
-            const tx = Math.floor(colonist.x + randBetween(-3, 3));
-            const ty = Math.floor(colonist.y + randBetween(-3, 3));
-            if (tx >= 0 && ty >= 0 && tx < WORLD_SIZE && ty < WORLD_SIZE && game.world.tiles.get(tx + ',' + ty) !== 'water') {
-              const plot = { x: tx, y: ty, crop: 'wheat', growth: 0.08, mature: false };
-              game.world.cropPlots.push(plot);
-              return plot;
-            }
-          }
-          return null;
+          if (game.world.cropPlots.length >= 8) return null;
+          const tx = Math.floor(colonist.x + randBetween(-3, 3));
+          const ty = Math.floor(colonist.y + randBetween(-3, 3));
+          if (tx < 0 || ty < 0 || tx >= WORLD_SIZE || ty >= WORLD_SIZE) return null;
+          if (game.world.tiles.get(`${tx},${ty}`) === 'water') return null;
+          const plot = { x: tx, y: ty, crop: 'wheat', growth: 0.08, mature: false };
+          game.world.cropPlots.push(plot);
+          return plot;
         }
 
         Game.prototype.harvestCrop = function (x, y) {
-          const plot = this.world.cropPlots.find(function (p) {
-            return p.x === x && p.y === y;
-          });
+          const plot = this.world.cropPlots.find((p) => p.x === x && p.y === y);
           if (!plot || !plot.mature) return 0;
-          const yieldAmount = 3;
           plot.growth = 0.06;
           plot.mature = false;
-          return yieldAmount;
+          return 3;
         };
 
-        function moveTowardTarget(colonist, tx, ty, speed) {
-          const dx = tx - colonist.x;
-          const dy = ty - colonist.y;
-          const dist = Math.hypot(dx, dy) || 1;
-          const moveX = (dx / dist) * speed;
-          const moveY = (dy / dist) * speed;
-          const nextX = clamp(colonist.x + moveX, 0, WORLD_SIZE - 1);
-          const nextY = clamp(colonist.y + moveY, 0, WORLD_SIZE - 1);
-          colonist.x = nextX;
-          colonist.y = nextY;
-        }
+        Game.prototype.applyPriority = function (colonist, task) {
+          const priority = colonist.priority || 'normal';
+          if (task === 'rest') return PRIORITY_RANK[priority] <= 2 ? 0.8 : 1;
+          return 1;
+        };
 
-        function wanderTowards(colonist, targetX, targetY) {
-          moveTowardTarget(colonist, targetX, targetY, 0.08);
+        Game.prototype.setPriorityForSelected = function (priority) {
+          const colonist = this.getSelectedColonist();
+          if (!colonist) return;
+          colonist.priority = priority;
+          this.log.unshift(`${colonist.name} priority set to ${priority}.`);
+          this.renderUI();
+        };
+
+        Game.prototype.assignTask = function (task, priorityOverride) {
+          const colonist = this.getSelectedColonist();
+          if (!colonist) return;
+          colonist.task = task;
+          colonist.priority = priorityOverride || colonist.priority || 'normal';
+          colonist.job = TASKS[task] || task;
+          this.log.unshift(`${colonist.name} assigned to ${TASKS[task] || task}.`);
+          this.renderUI();
+        };
+
+        Game.prototype.getSelectedColonist = function () {
+          if (!this.selectedColonistId) return null;
+          return this.colonists.find((colonist) => colonist.id === this.selectedColonistId) || null;
+        };
+
+        Game.prototype.updateColonists = function (dt) {
+          for (const colonist of this.colonists) {
+            colonist.hunger = clamp(colonist.hunger - dt * 0.7, 0, 100);
+            colonist.sleep = clamp(colonist.sleep - dt * 0.42, 0, 100);
+            colonist.fun = clamp(colonist.fun - dt * 0.25, 0, 100);
+            colonist.mood = clamp((colonist.hunger + colonist.sleep + colonist.fun) / 3, 0, 100);
+
+            if (colonist.task === 'rest') {
+              colonist.job = 'Rest';
+              colonist.sleep = clamp(colonist.sleep + dt * 18, 0, 100);
+              if (colonist.sleep > 70) {
+                colonist.task = null;
+                colonist.job = 'wander';
+              }
+              continue;
+            }
+
+            if (colonist.task === 'eat') {
+              colonist.job = 'Eat';
+              if (this.resources.food > 0) {
+                this.resources.food -= 1;
+                colonist.hunger = clamp(colonist.hunger + 45, 0, 100);
+                colonist.task = null;
+                colonist.job = 'wander';
+              }
+              continue;
+            }
+
+            if (colonist.task === 'gatherWood') {
+              colonist.job = 'Gather Wood';
+              gatherNearestResource(this, colonist, 'tree', 'wood');
+              if (this.resources.wood > 30) {
+                colonist.task = null;
+                colonist.job = 'wander';
+              }
+              continue;
+            }
+
+            if (colonist.task === 'gatherStone') {
+              colonist.job = 'Gather Stone';
+              gatherNearestResource(this, colonist, 'rock', 'stone');
+              if (this.resources.stone > 24) {
+                colonist.task = null;
+                colonist.job = 'wander';
+              }
+              continue;
+            }
+
+            if (colonist.task === 'farm') {
+              colonist.job = 'Farm';
+              const matureCrop = this.world.cropPlots.find((plot) => plot.mature);
+              if (matureCrop) {
+                this.resources.food += this.harvestCrop(matureCrop.x, matureCrop.y);
+                colonist.task = null;
+                colonist.job = 'wander';
+                continue;
+              }
+              const plot = maybeCreateFarmPlot(this, colonist);
+              if (plot) {
+                moveTowardTarget(colonist, plot.x, plot.y, 0.12);
+                continue;
+              }
+            }
+
+            if (colonist.hunger < 35 && this.resources.food > 0) {
+              this.resources.food -= 1;
+              colonist.hunger = clamp(colonist.hunger + 40, 0, 100);
+              colonist.job = 'Eat';
+              continue;
+            }
+
+            if (colonist.sleep < 25) {
+              colonist.job = 'Rest';
+              colonist.sleep = clamp(colonist.sleep + dt * 16, 0, 100);
+              continue;
+            }
+
+            if (this.resources.wood < 22 && nearestNode(this.world, colonist.x, colonist.y, 'tree')) {
+              gatherNearestResource(this, colonist, 'tree', 'wood');
+              colonist.job = 'Gather Wood';
+              continue;
+            }
+
+            if (this.resources.stone < 18 && nearestNode(this.world, colonist.x, colonist.y, 'rock')) {
+              gatherNearestResource(this, colonist, 'rock', 'stone');
+              colonist.job = 'Gather Stone';
+              continue;
+            }
+
+            if (this.resources.food < 30) {
+              const crop = this.world.cropPlots.find((plot) => plot.mature);
+              if (crop) {
+                this.resources.food += this.harvestCrop(crop.x, crop.y);
+              } else {
+                const plot = maybeCreateFarmPlot(this, colonist);
+                if (plot) {
+                  colonist.job = 'Farm';
+                  moveTowardTarget(colonist, plot.x, plot.y, 0.12);
+                  continue;
+                }
+              }
+            }
+
+            if (Math.random() < 0.012) {
+              const tx = randBetween(18, 22);
+              const ty = randBetween(16, 22);
+              wanderTowards(colonist, tx, ty);
+            }
+            colonist.job = 'wander';
+          }
+        };
+
+        function wanderTowards(colonist, tx, ty) {
+          moveTowardTarget(colonist, tx, ty, 0.08);
         }
 
         Game.prototype.render = function () {
           const width = this.canvas.clientWidth;
           const height = this.canvas.clientHeight;
           this.ctx.clearRect(0, 0, width, height);
-          this.ctx.fillStyle = '#0b1821';
-          this.ctx.fillRect(0, 0, width, height);
 
-          const viewLeft = this.camera.x;
-          const viewTop = this.camera.y;
-
-          const startX = Math.max(0, Math.floor(viewLeft / (TILE_SIZE * this.camera.zoom)) - 1);
-          const endX = Math.min(WORLD_SIZE, Math.ceil((viewLeft + width / this.camera.zoom) / (TILE_SIZE * this.camera.zoom)) + 1);
-          const startY = Math.max(0, Math.floor(viewTop / (TILE_SIZE * this.camera.zoom)) - 1);
-          const endY = Math.min(WORLD_SIZE, Math.ceil((viewTop + height / this.camera.zoom) / (TILE_SIZE * this.camera.zoom)) + 1);
+          const startX = Math.max(0, Math.floor(this.camera.x / (TILE_SIZE * this.camera.zoom)) - 1);
+          const endX = Math.min(WORLD_SIZE, Math.ceil((this.camera.x + width / this.camera.zoom) / (TILE_SIZE * this.camera.zoom)) + 1);
+          const startY = Math.max(0, Math.floor(this.camera.y / (TILE_SIZE * this.camera.zoom)) - 1);
+          const endY = Math.min(WORLD_SIZE, Math.ceil((this.camera.y + height / this.camera.zoom) / (TILE_SIZE * this.camera.zoom)) + 1);
 
           for (let y = startY; y < endY; y++) {
             for (let x = startX; x < endX; x++) {
-              const drawX = x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
-              const drawY = y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
-              const tile = this.world.tiles.get(x + ',' + y) || 'grass';
-              const base = TERRAIN[tile] || '#5a8d5d';
-              this.ctx.fillStyle = base;
-              this.ctx.fillRect(drawX, drawY, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
-
+              const pixelX = x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+              const pixelY = y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+              const tile = this.world.tiles.get(`${x},${y}`) || 'grass';
+              this.ctx.fillStyle = TERRAIN[tile] || '#5c925f';
+              this.ctx.fillRect(pixelX, pixelY, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
               this.ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-              this.ctx.strokeRect(drawX + 0.5, drawY + 0.5, TILE_SIZE * this.camera.zoom - 1, TILE_SIZE * this.camera.zoom - 1);
+              this.ctx.strokeRect(pixelX + 0.5, pixelY + 0.5, TILE_SIZE * this.camera.zoom - 1, TILE_SIZE * this.camera.zoom - 1);
             }
           }
 
@@ -1108,7 +1082,7 @@
             const px = this.previewTile.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const py = this.previewTile.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
             const valid = this.isValidBuildTile(this.previewTile.x, this.previewTile.y);
-            this.ctx.strokeStyle = valid ? '#7be0b8' : '#ff8e8e';
+            this.ctx.strokeStyle = valid ? '#70e0b0' : '#ff8d8d';
             this.ctx.lineWidth = 2;
             this.ctx.strokeRect(px, py, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
           }
@@ -1119,12 +1093,14 @@
             if (node.x < startX || node.x >= endX || node.y < startY || node.y >= endY) continue;
             const x = node.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const y = node.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
-            const size = TILE_SIZE * this.camera.zoom * 0.34;
-            this.ctx.fillStyle = node.type === 'tree' ? '#417a36' : '#939aa1';
-            this.ctx.shadowColor = 'rgba(0,0,0,0.28)';
-            this.ctx.shadowBlur = 6;
+            const cx = x + TILE_SIZE * this.camera.zoom * 0.5;
+            const cy = y + TILE_SIZE * this.camera.zoom * 0.5;
+            const r = TILE_SIZE * this.camera.zoom * 0.32;
+            this.ctx.fillStyle = node.type === 'tree' ? '#417b36' : '#909aa7';
+            this.ctx.shadowColor = 'rgba(0,0,0,0.25)';
+            this.ctx.shadowBlur = 8;
             this.ctx.beginPath();
-            this.ctx.arc(x + TILE_SIZE * this.camera.zoom * 0.5, y + TILE_SIZE * this.camera.zoom * 0.5, size, 0, Math.PI * 2);
+            this.ctx.arc(cx, cy, r, 0, 2 * Math.PI);
             this.ctx.fill();
             this.ctx.shadowBlur = 0;
           }
@@ -1135,14 +1111,14 @@
             if (structure.x < startX || structure.x >= endX || structure.y < startY || structure.y >= endY) continue;
             const x = structure.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const y = structure.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
-            const color = BUILDINGS[structure.type].color;
-            this.ctx.fillStyle = color;
-            this.ctx.fillRect(x + 2, y + 2, TILE_SIZE * this.camera.zoom - 4, TILE_SIZE * this.camera.zoom - 4);
+            const w = TILE_SIZE * this.camera.zoom;
+            this.ctx.fillStyle = BUILDINGS[structure.type].color;
+            this.ctx.fillRect(x + 2, y + 2, w - 4, w - 4);
             this.ctx.strokeStyle = 'rgba(0,0,0,0.18)';
-            this.ctx.strokeRect(x + 2, y + 2, TILE_SIZE * this.camera.zoom - 4, TILE_SIZE * this.camera.zoom - 4);
+            this.ctx.strokeRect(x + 2, y + 2, w - 4, w - 4);
             if (!structure.built) {
               this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
-              this.ctx.fillRect(x + 4, y + 4, (TILE_SIZE * this.camera.zoom - 8) * structure.progress, 4);
+              this.ctx.fillRect(x + 4, y + 4, (w - 8) * structure.progress, 4);
             }
           }
         };
@@ -1152,10 +1128,11 @@
             if (plot.x < startX || plot.x >= endX || plot.y < startY || plot.y >= endY) continue;
             const x = plot.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const y = plot.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+            const w = TILE_SIZE * this.camera.zoom;
             this.ctx.fillStyle = plot.mature ? '#b7e16b' : '#5c8a4f';
-            this.ctx.fillRect(x + 6, y + 6, TILE_SIZE * this.camera.zoom - 12, TILE_SIZE * this.camera.zoom - 12);
+            this.ctx.fillRect(x + 6, y + 6, w - 12, w - 12);
             this.ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-            this.ctx.strokeRect(x + 6, y + 6, TILE_SIZE * this.camera.zoom - 12, TILE_SIZE * this.camera.zoom - 12);
+            this.ctx.strokeRect(x + 6, y + 6, w - 12, w - 12);
           }
         };
 
@@ -1164,94 +1141,124 @@
             if (colonist.x < startX || colonist.x >= endX || colonist.y < startY || colonist.y >= endY) continue;
             const x = colonist.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const y = colonist.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
-            const px = x + TILE_SIZE * this.camera.zoom * 0.5;
-            const py = y + TILE_SIZE * this.camera.zoom * 0.5;
+            const centerX = x + TILE_SIZE * this.camera.zoom * 0.5;
+            const centerY = y + TILE_SIZE * this.camera.zoom * 0.5;
             const radius = TILE_SIZE * this.camera.zoom * 0.24;
-            this.ctx.fillStyle = this.selectedColonistId === colonist.id ? '#7be0b8' : colonist.tint || '#dfeaf8';
+
+            this.ctx.fillStyle = this.selectedColonistId === colonist.id ? '#75e5be' : colonist.tint;
             this.ctx.beginPath();
-            this.ctx.arc(px, py, radius, 0, Math.PI * 2);
+            this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
             this.ctx.fill();
 
-            this.ctx.fillStyle = '#1a2731';
-            this.ctx.fillRect(px - 3, py + radius + 3, 6, 8);
-
-            this.ctx.fillStyle = '#1a2731';
-            this.ctx.fillRect(px - 11, py + 5, 22, 4);
+            this.ctx.fillStyle = '#1d2a34';
+            this.ctx.fillRect(centerX - 2.5, centerY + radius + 4, 5, 8);
+            this.ctx.fillStyle = '#0f1a22';
+            this.ctx.fillRect(centerX - 10, centerY + 2, 20, 4);
           }
+        };
+
+        Game.prototype.getSelectedColonist = function () {
+          if (!this.selectedColonistId) return null;
+          return this.colonists.find((colonist) => colonist.id === this.selectedColonistId) || null;
         };
 
         Game.prototype.renderUI = function () {
-          const resourceEntries = Object.entries(this.resources);
-          this.resourceBar.innerHTML = resourceEntries.map(function ([key, value]) {
-            return '<div class="resource-pill">' + key + ': ' + Math.floor(value) + '</div>';
+          this.resourceBar.innerHTML = Object.entries(this.resources).map(([key, value]) => {
+            return `<div class="resource-pill">${key}: ${Math.floor(value)}</div>`;
           }).join('');
 
-          this.colonistList.innerHTML = this.colonists.map(function (colonist) {
-            return '<div class="colonist-item ' + (this.selectedColonistId === colonist.id ? 'selected' : '') + '" data-id="' + colonist.id + '"><span class="avatar">' + colonist.name.charAt(0) + '</span><div><div>' + colonist.name + '</div><small>' + (colonist.task || colonist.job) + '</small></div></div>';
-          }.bind(this)).join('');
+          this.colonistList.innerHTML = this.colonists.map((colonist) => {
+            return `<div class="colonist-item ${this.selectedColonistId === colonist.id ? 'selected' : ''}" data-id="${colonist.id}"><span class="avatar">${colonist.name.charAt(0)}</span><div><div>${colonist.name}</div><small>${colonist.task || colonist.job}</small></div></div>`;
+          }).join('');
 
-          this.colonistList.querySelectorAll('.colonist-item').forEach(function (item) {
-            item.addEventListener('click', function () {
+          this.colonistList.querySelectorAll('.colonist-item').forEach((item) => {
+            item.addEventListener('click', () => {
               this.selectedColonistId = item.dataset.id;
               this.renderUI();
-            }.bind(this));
-          }, this);
+            });
+          });
 
           const selected = this.getSelectedColonist();
-
           if (selected) {
-            const actionButtons = [
-              '<button class="task-btn" data-task="gatherWood">Gather Wood</button>',
-              '<button class="task-btn" data-task="gatherStone">Gather Stone</button>',
-              '<button class="task-btn" data-task="farm">Farm</button>',
-              '<button class="task-btn" data-task="rest">Rest</button>',
-              '<button class="task-btn" data-task="eat">Eat</button>',
-              '<button class="task-btn" data-task="clear">Clear</button>'
-            ].join('');
+            const priorityButtons = PRIORITY_NAMES.map((name, index) => {
+              const value = ['low', 'normal', 'high', 'urgent'][index];
+              return `<button class="priority-btn ${selected.priority === value ? 'active' : ''}" data-priority="${value}">${name}</button>`;
+            }).join('');
 
-            this.selectedUnit.innerHTML = '<div class="status-line"><span>Name</span><strong>' + selected.name + '</strong></div>' +
-              '<div class="status-line"><span>Hunger</span><strong>' + Math.round(selected.hunger) + '%</strong></div>' +
-              '<div class="status-line"><span>Sleep</span><strong>' + Math.round(selected.sleep) + '%</strong></div>' +
-              '<div class="status-line"><span>Fun</span><strong>' + Math.round(selected.fun) + '%</strong></div>' +
-              '<div class="status-line"><span>Task</span><strong>' + (selected.task || selected.job) + '</strong></div>' +
-              '<div class="task-grid">' + actionButtons + '</div>';
+            const taskButtons = [
+              'gatherWood', 'gatherStone', 'farm', 'rest', 'eat', 'clear'
+            ].map((task) => `<button class="task-btn" data-task="${task}">${TASKS[task]}</button>`).join('');
 
-            this.selectedUnit.querySelectorAll('.task-btn').forEach(function (button) {
-              button.addEventListener('click', function () {
+            this.selectedUnit.innerHTML = `
+              <div class="status-line"><span>Name</span><strong>${selected.name}</strong></div>
+              <div class="status-line"><span>Hunger</span><strong>${Math.round(selected.hunger)}%</strong></div>
+              <div class="status-line"><span>Sleep</span><strong>${Math.round(selected.sleep)}%</strong></div>
+              <div class="status-line"><span>Fun</span><strong>${Math.round(selected.fun)}%</strong></div>
+              <div class="status-line"><span>Mood</span><strong>${Math.round(selected.mood)}%</strong></div>
+              <div class="status-line"><span>Job</span><strong>${selected.task || selected.job}</strong></div>
+              <div class="status-line"><span>Priority</span><strong>${selected.priority}</strong></div>
+              <div class="priority-grid">${priorityButtons}</div>
+              <div class="task-grid" style="margin-top:10px;">${taskButtons}</div>
+            `;
+
+            this.selectedUnit.querySelectorAll('.priority-btn').forEach((button) => {
+              button.addEventListener('click', () => {
+                this.setPriorityForSelected(button.dataset.priority);
+              });
+            });
+
+            this.selectedUnit.querySelectorAll('.task-btn').forEach((button) => {
+              button.addEventListener('click', () => {
                 const task = button.dataset.task;
                 if (task === 'clear') {
                   selected.task = null;
-                  selected.job = 'idle';
+                  selected.job = 'wander';
                   this.renderUI();
                   return;
                 }
-                this.assignTask(task, null);
-              }.bind(this));
-            }, this);
+                this.assignTask(task, selected.priority);
+              });
+            });
           } else {
-            this.selectedUnit.innerHTML = '<div class="status-line"><span>Selection</span><strong>None</strong></div>' +
-              '<div class="status-line"><span>Tip</span><strong>Click a colonist</strong></div>';
+            this.selectedUnit.innerHTML = `
+              <div class="status-line"><span>Selection</span><strong>None</strong></div>
+              <div class="status-line"><span>Tip</span><strong>Click a colonist</strong></div>
+            `;
           }
 
-          this.colonySummary.innerHTML = '<div class="status-line"><span>Colonists</span><strong>' + this.colonists.length + '</strong></div>' +
-            '<div class="status-line"><span>Food</span><strong>' + Math.floor(this.resources.food) + '</strong></div>' +
-            '<div class="status-line"><span>Wood</span><strong>' + Math.floor(this.resources.wood) + '</strong></div>' +
-            '<div class="status-line"><span>Stone</span><strong>' + Math.floor(this.resources.stone) + '</strong></div>' +
-            '<div class="status-line"><span>Build</span><strong>' + (this.buildMode ? ('On: ' + BUILDINGS[this.buildMode].label) : 'Off') + '</strong></div>';
+          this.colonySummary.innerHTML = `
+            <div class="status-line"><span>Colonists</span><strong>${this.colonists.length}</strong></div>
+            <div class="status-line"><span>Food</span><strong>${Math.floor(this.resources.food)}</strong></div>
+            <div class="status-line"><span>Wood</span><strong>${Math.floor(this.resources.wood)}</strong></div>
+            <div class="status-line"><span>Stone</span><strong>${Math.floor(this.resources.stone)}</strong></div>
+            <div class="status-line"><span>Build</span><strong>${this.buildMode ? BUILDINGS[this.buildMode].label : 'Off'}</strong></div>
+          `;
 
-          this.alertsBox.innerHTML = this.alerts.map(function (alert) {
-            return '<div class="alert-item">' + alert + '</div>';
-          }).join('');
-
-          this.eventLog.innerHTML = this.log.slice(0, 8).map(function (entry) {
-            return '<div class="log-entry">' + entry + '</div>';
-          }).join('');
-
-          this.timeLabel.textContent = 'Day ' + this.day;
+          this.alertsBox.innerHTML = this.alerts.map((alert) => `<div class="alert-item">${alert}</div>`).join('');
+          this.eventLog.innerHTML = this.log.slice(0, 8).map((entry) => `<div class="log-entry">${entry}</div>`).join('');
+          this.timeLabel.textContent = `Day ${this.day}`;
           this.buildToggleBtn.textContent = this.buildMode ? 'Build: On' : 'Build';
         };
 
-        Game.prototype.saveGame = function (showToast) {
+        Game.prototype.setPriorityForSelected = function (priority) {
+          const colonist = this.getSelectedColonist();
+          if (!colonist) return;
+          colonist.priority = priority;
+          this.log.unshift(`${colonist.name} priority set to ${priority}.`);
+          this.renderUI();
+        };
+
+        Game.prototype.assignTask = function (task, priorityOverride) {
+          const colonist = this.getSelectedColonist();
+          if (!colonist) return;
+          colonist.task = task;
+          colonist.priority = priorityOverride || colonist.priority || 'normal';
+          colonist.job = TASKS[task] || task;
+          this.log.unshift(`${colonist.name} assigned to ${TASKS[task] || task}.`);
+          this.renderUI();
+        };
+
+        Game.prototype.saveGame = function (silent = false) {
           const saveState = {
             world: {
               tiles: Array.from(this.world.tiles.entries()),
@@ -1270,7 +1277,7 @@
             buildMode: this.buildMode
           };
           localStorage.setItem(SAVE_KEY, JSON.stringify(saveState));
-          if (showToast !== false) this.showToast('Game saved');
+          if (!silent) this.showToast('Game saved');
         };
 
         Game.prototype.loadGame = function () {
@@ -1321,7 +1328,7 @@
           this.showToast('New world created');
         };
 
-        const game = new Game();
+        new Game();
       })();
     </script>
   </body>
