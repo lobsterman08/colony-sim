@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Colony Forge</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="title-wrap">
+          <div class="brand">Colony Forge</div>
+          <div id="timeLabel" class="time-label">Day 1</div>
+        </div>
+
+        <div id="resourceBar" class="resource-bar"></div>
+
+        <div class="controls-group">
+          <button id="pauseBtn" class="action-btn">Pause</button>
+          <button data-speed="1" class="speed-btn active">1x</button>
+          <button data-speed="2" class="speed-btn">2x</button>
+          <button data-speed="4" class="speed-btn">4x</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="panel left-panel">
+          <h3>Colony</h3>
+          <div id="colonySummary" class="summary-block"></div>
+          <div id="colonistList" class="list-block"></div>
+        </aside>
+
+        <section class="viewport-panel">
+          <canvas id="gameCanvas"></canvas>
+
+          <div id="buildPanel" class="build-panel closed">
+            <div class="panel-header">
+              <span>Build</span>
+              <button id="toggleBuildPanel" class="mini-btn">Hide</button>
+            </div>
+            <div id="buildCategories" class="build-categories"></div>
+          </div>
+
+          <div id="toast" class="toast"></div>
+        </section>
+
+        <aside class="panel right-panel">
+          <h3>Selected</h3>
+          <div id="selectedUnit" class="summary-block"></div>
+
+          <h3>Alerts</h3>
+          <div id="alerts" class="list-block"></div>
+
+          <h3>Event Log</h3>
+          <div id="eventLog" class="log-block"></div>
+        </aside>
+      </main>
+
+      <footer class="bottom-toolbar">
+        <button id="buildToggleBtn" class="action-btn accent">Build</button>
+        <button id="saveBtn" class="action-btn">Save</button>
+        <button id="loadBtn" class="action-btn">Load</button>
+        <button id="randomizeBtn" class="action-btn">New World</button>
+      </footer>
+    </div>
+
+    <script type="module" src="./src/game.js"></script>
+  </body>
+</html>
