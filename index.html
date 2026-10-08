@@ -4,40 +4,391 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Colony Forge</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      :root {
+        --bg-0: #0c1721;
+        --bg-1: #101f2d;
+        --panel: rgba(14, 22, 28, 0.9);
+        --panel-soft: rgba(16, 28, 35, 0.78);
+        --border: rgba(154, 191, 217, 0.22);
+        --text: #edf7ff;
+        --muted: #9db6c7;
+        --accent: #7be0b8;
+        --accent-strong: #47c49f;
+        --gold: #f2d37c;
+        --danger: #ff8e8e;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-0);
+        color: var(--text);
+        font-family: Inter, "Segoe UI", sans-serif;
+        overflow: hidden;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      #app {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+        background: linear-gradient(180deg, var(--bg-1), var(--bg-0));
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        background: rgba(8, 14, 18, 0.9);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand {
+        font-size: 1.16rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .time-label {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .resource-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .resource-pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.025);
+        color: var(--text);
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .btn, .speed-btn, .mini-btn {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      }
+
+      .btn:active, .speed-btn:active, .mini-btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn.accent {
+        background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+        color: #072b1f;
+        font-weight: 700;
+      }
+
+      .speed-btn.active {
+        background: rgba(123, 224, 184, 0.12);
+        border-color: rgba(123, 224, 184, 0.6);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(200px, 260px) minmax(0, 1fr) minmax(200px, 260px);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .panel {
+        padding: 12px;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        overflow: auto;
+      }
+
+      .panel.right {
+        border-right: none;
+        border-left: 1px solid var(--border);
+      }
+
+      .panel h3 {
+        margin: 0 0 8px 0;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .box {
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.02);
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 12px;
+      }
+
+      .mini-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .colonist-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 6px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid transparent;
+        cursor: pointer;
+      }
+
+      .colonist-item.selected {
+        border-color: rgba(123, 224, 184, 0.56);
+        background: rgba(123, 224, 184, 0.08);
+      }
+
+      .avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #7d8d9c, #4a5b67);
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .status-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin: 8px 0;
+      }
+
+      .status-line strong {
+        color: var(--text);
+      }
+
+      .viewport-shell {
+        position: relative;
+        overflow: hidden;
+        background: #0c1b24;
+        min-height: 0;
+      }
+
+      #gameCanvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #0a1821;
+        touch-action: none;
+        user-select: none;
+      }
+
+      .build-panel {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        width: min(290px, calc(100% - 24px));
+        max-height: 70%;
+        background: rgba(8, 14, 18, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        overflow: hidden;
+        transition: transform 0.22s ease, opacity 0.22s ease;
+      }
+
+      .build-panel.closed {
+        transform: translateX(-105%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        font-weight: 700;
+      }
+
+      .build-categories {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 10px;
+        max-height: 100%;
+        overflow: auto;
+      }
+
+      .build-category {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.02);
+        overflow: hidden;
+      }
+
+      .build-category-title {
+        padding: 8px 10px;
+        background: rgba(255,255,255,0.03);
+        font-weight: 700;
+      }
+
+      .build-items {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .build-item {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.03);
+        color: var(--text);
+        padding: 8px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .build-item.active {
+        border-color: rgba(123,224,184,0.7);
+        background: rgba(123,224,184,0.08);
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(10,17,22,0.96);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px 14px;
+        opacity: 0;
+        transition: transform 0.18s ease, opacity 0.18s ease;
+        pointer-events: none;
+      }
+
+      .toast.visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .bottom-toolbar {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px 12px 14px;
+        border-top: 1px solid var(--border);
+        background: rgba(8, 14, 18, 0.9);
+      }
+
+      .alert-item {
+        padding-left: 8px;
+        border-left: 3px solid var(--gold);
+        margin: 8px 0;
+        color: var(--text);
+        font-size: 0.8rem;
+      }
+
+      .log-entry {
+        color: var(--muted);
+        font-size: 0.78rem;
+        margin: 4px 0;
+      }
+
+      @media (max-width: 920px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .panel.left, .panel.right {
+          display: none;
+        }
+        .topbar {
+          grid-template-columns: 1fr;
+          justify-items: center;
+        }
+      }
+
+      @media (orientation: portrait) {
+        .bottom-toolbar {
+          padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="app">
       <header class="topbar">
-        <div class="title-wrap">
+        <div class="brand-wrap">
           <div class="brand">Colony Forge</div>
           <div id="timeLabel" class="time-label">Day 1</div>
         </div>
 
         <div id="resourceBar" class="resource-bar"></div>
 
-        <div class="controls-group">
-          <button id="pauseBtn" class="action-btn">Pause</button>
-          <button data-speed="1" class="speed-btn active">1x</button>
-          <button data-speed="2" class="speed-btn">2x</button>
-          <button data-speed="4" class="speed-btn">4x</button>
+        <div class="controls">
+          <button id="pauseBtn" class="btn">Pause</button>
+          <button class="speed-btn active" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="2">2x</button>
+          <button class="speed-btn" data-speed="4">4x</button>
         </div>
       </header>
 
       <main class="layout">
-        <aside class="panel left-panel">
+        <aside class="panel left">
           <h3>Colony</h3>
-          <div id="colonySummary" class="summary-block"></div>
-          <div id="colonistList" class="list-block"></div>
+          <div id="colonySummary" class="box"></div>
+          <div id="colonistList" class="mini-list"></div>
         </aside>
 
-        <section class="viewport-panel">
+        <section class="viewport-shell">
           <canvas id="gameCanvas"></canvas>
 
-          <div id="buildPanel" class="build-panel closed">
+          <div id="buildPanel" class="build-panel">
             <div class="panel-header">
               <span>Build</span>
-              <button id="toggleBuildPanel" class="mini-btn">Hide</button>
+              <button id="hideBuildBtn" class="mini-btn">Hide</button>
             </div>
             <div id="buildCategories" class="build-categories"></div>
           </div>
@@ -45,26 +396,752 @@
           <div id="toast" class="toast"></div>
         </section>
 
-        <aside class="panel right-panel">
+        <aside class="panel right">
           <h3>Selected</h3>
-          <div id="selectedUnit" class="summary-block"></div>
+          <div id="selectedUnit" class="box"></div>
 
           <h3>Alerts</h3>
-          <div id="alerts" class="list-block"></div>
+          <div id="alerts" class="box"></div>
 
           <h3>Event Log</h3>
-          <div id="eventLog" class="log-block"></div>
+          <div id="eventLog" class="box"></div>
         </aside>
       </main>
 
       <footer class="bottom-toolbar">
-        <button id="buildToggleBtn" class="action-btn accent">Build</button>
-        <button id="saveBtn" class="action-btn">Save</button>
-        <button id="loadBtn" class="action-btn">Load</button>
-        <button id="randomizeBtn" class="action-btn">New World</button>
+        <button id="buildToggleBtn" class="btn accent">Build</button>
+        <button id="saveBtn" class="btn">Save</button>
+        <button id="loadBtn" class="btn">Load</button>
+        <button id="newWorldBtn" class="btn">New World</button>
       </footer>
     </div>
 
-    <script type="module" src="./src/game.js"></script>
+    <script>
+      (function () {
+        const TILE_SIZE = 32;
+        const WORLD_SIZE = 90;
+        const SAVE_KEY = 'colony_forge_save_v1';
+
+        const BUILDINGS = {
+          wall: { label: 'Wall', color: '#c4ced6', cost: { stone: 2 }, buildTime: 2 },
+          floor: { label: 'Floor', color: '#8599a9', cost: { wood: 1 }, buildTime: 1 },
+          bed: { label: 'Bed', color: '#d9ab6d', cost: { wood: 2, stone: 1 }, buildTime: 3 },
+          storage: { label: 'Storage', color: '#d7b98d', cost: { wood: 3, stone: 1 }, buildTime: 3 },
+          campfire: { label: 'Campfire', color: '#f39c4a', cost: { wood: 2, stone: 1 }, buildTime: 4 },
+          farm: { label: 'Crop Plot', color: '#78c76c', cost: { wood: 2 }, buildTime: 3 }
+        };
+
+        const BUILD_CATEGORIES = {
+          Structures: ['wall', 'floor'],
+          Furniture: ['bed', 'storage'],
+          Utilities: ['campfire'],
+          Farming: ['farm']
+        };
+
+        const TERRAIN = {
+          grass: '#569b59',
+          dirt: '#8d6e47',
+          stone: '#7d7f86',
+          water: '#2d6f8d',
+          sand: '#d8b76f'
+        };
+
+        const DEFAULT_RESOURCES = { wood: 24, stone: 18, food: 20, cloth: 2, metal: 0 };
+
+        function clamp(value, min, max) {
+          return Math.min(max, Math.max(min, value));
+        }
+
+        function randBetween(min, max) {
+          return min + Math.random() * (max - min);
+        }
+
+        function createWorld(seed) {
+          const tiles = new Map();
+          const resourceNodes = [];
+          const structures = [];
+          const cropPlots = [];
+
+          for (let y = 0; y < WORLD_SIZE; y++) {
+            for (let x = 0; x < WORLD_SIZE; x++) {
+              const nx = x / WORLD_SIZE;
+              const ny = y / WORLD_SIZE;
+              const noise = Math.sin((nx + seed) * 18) + Math.cos((ny - seed) * 14) + Math.sin((x + y) * 0.12 + seed);
+              let tile = 'grass';
+
+              if (noise > 1.9) tile = 'water';
+              else if (noise < -1.5) tile = 'stone';
+              else if (x > WORLD_SIZE * 0.7 || y > WORLD_SIZE * 0.74) tile = 'sand';
+
+              tiles.set(`${x},${y}`, tile);
+            }
+          }
+
+          for (let i = 0; i < WORLD_SIZE * 5; i++) {
+            const x = Math.floor(Math.random() * WORLD_SIZE);
+            const y = Math.floor(Math.random() * WORLD_SIZE);
+            if (tiles.get(`${x},${y}`) !== 'water') {
+              resourceNodes.push({ type: 'tree', x, y, hp: 5 });
+            }
+          }
+
+          for (let i = 0; i < WORLD_SIZE * 2.5; i++) {
+            const x = Math.floor(Math.random() * WORLD_SIZE);
+            const y = Math.floor(Math.random() * WORLD_SIZE);
+            if (tiles.get(`${x},${y}`) !== 'water') {
+              resourceNodes.push({ type: 'rock', x, y, hp: 6 });
+            }
+          }
+
+          return { tiles, resourceNodes, structures, cropPlots };
+        }
+
+        function createColonist(index) {
+          return {
+            id: 'c-' + Date.now() + '-' + index,
+            name: ['Ari', 'Mira', 'Rowan', 'Juno', 'Tess', 'Ivo', 'Nia', 'Cai'][index % 8],
+            x: 18 + index * 0.7,
+            y: 18 + index * 0.5,
+            hunger: 72,
+            sleep: 78,
+            fun: 70,
+            job: 'wander',
+            target: null,
+            mood: 0.8,
+            health: 100
+          };
+        }
+
+        function Game() {
+          this.world = createWorld(Math.random() * 1000);
+          this.colonists = [];
+          this.resources = { ...DEFAULT_RESOURCES };
+          this.camera = { x: 0, y: 0, zoom: 1 };
+          this.selectedColonistId = null;
+          this.speed = 1;
+          this.paused = false;
+          this.day = 1;
+          this.time = 0;
+          this.buildMode = null;
+          this.buildOpen = true;
+          this.previewTile = null;
+          this.log = ['World generated.'];
+          this.alerts = ['The colony is calm.'];
+          this.dragging = null;
+          this.lastFrame = 0;
+
+          this.canvas = document.getElementById('gameCanvas');
+          this.ctx = this.canvas.getContext('2d');
+          this.resourceBar = document.getElementById('resourceBar');
+          this.colonistList = document.getElementById('colonistList');
+          this.colonySummary = document.getElementById('colonySummary');
+          this.selectedUnit = document.getElementById('selectedUnit');
+          this.alertsBox = document.getElementById('alerts');
+          this.eventLog = document.getElementById('eventLog');
+          this.timeLabel = document.getElementById('timeLabel');
+          this.buildPanel = document.getElementById('buildPanel');
+          this.buildCategories = document.getElementById('buildCategories');
+          this.toast = document.getElementById('toast');
+          this.pauseBtn = document.getElementById('pauseBtn');
+
+          this.setupUI();
+          this.spawnColonists();
+          this.populateBuildMenu();
+          this.resizeCanvas();
+          this.camera.x = 17 * TILE_SIZE;
+          this.camera.y = 17 * TILE_SIZE;
+          this.renderUI();
+          requestAnimationFrame(this.loop.bind(this));
+        }
+
+        Game.prototype.setupUI = function () {
+          const that = this;
+          document.getElementById('pauseBtn').addEventListener('click', function () {
+            that.paused = !that.paused;
+            this.textContent = that.paused ? 'Resume' : 'Pause';
+          });
+
+          document.querySelectorAll('.speed-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+              that.speed = Number(this.dataset.speed);
+              document.querySelectorAll('.speed-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn === button);
+              });
+            });
+          });
+
+          document.getElementById('buildToggleBtn').addEventListener('click', function () {
+            that.toggleBuildPanel();
+          });
+
+          document.getElementById('hideBuildBtn').addEventListener('click', function () {
+            that.toggleBuildPanel();
+          });
+
+          document.getElementById('saveBtn').addEventListener('click', function () {
+            that.saveGame();
+          });
+
+          document.getElementById('loadBtn').addEventListener('click', function () {
+            that.loadGame();
+          });
+
+          document.getElementById('newWorldBtn').addEventListener('click', function () {
+            that.newWorld();
+          });
+
+          this.buildCategories.addEventListener('click', function (event) {
+            const item = event.target.closest('.build-item');
+            if (!item) return;
+            const type = item.dataset.type;
+            that.buildMode = type;
+            document.querySelectorAll('.build-item').forEach(function (button) {
+              button.classList.toggle('active', button === item);
+            });
+            that.showToast('Build mode: ' + BUILDINGS[type].label);
+          });
+
+          window.addEventListener('resize', function () {
+            that.resizeCanvas();
+          });
+
+          this.canvas.addEventListener('pointerdown', function (event) {
+            that.handlePointerDown(event);
+          });
+
+          this.canvas.addEventListener('pointermove', function (event) {
+            that.handlePointerMove(event);
+          });
+
+          this.canvas.addEventListener('pointerup', function () {
+            that.dragging = null;
+          });
+
+          this.canvas.addEventListener('pointerleave', function () {
+            that.dragging = null;
+          });
+
+          this.canvas.addEventListener('wheel', function (event) {
+            event.preventDefault();
+            const delta = event.deltaY * -0.0015;
+            that.camera.zoom = clamp(that.camera.zoom + delta, 0.8, 2.4);
+          }, { passive: false });
+
+          window.addEventListener('keydown', function (event) {
+            if (event.key === ' ') {
+              event.preventDefault();
+              that.paused = !that.paused;
+              that.pauseBtn.textContent = that.paused ? 'Resume' : 'Pause';
+            }
+            if (event.key.toLowerCase() === 'b') {
+              that.toggleBuildPanel();
+            }
+            if (event.key.toLowerCase() === 's') {
+              that.saveGame();
+            }
+          });
+        };
+
+        Game.prototype.spawnColonists = function () {
+          this.colonists = [];
+          for (let i = 0; i < 6; i++) {
+            this.colonists.push(createColonist(i));
+          }
+          this.selectedColonistId = this.colonists[0].id;
+          this.world.structures.push({ type: 'bed', x: 16, y: 16, built: true, progress: 1 });
+          this.world.structures.push({ type: 'storage', x: 17, y: 16, built: true, progress: 1 });
+          this.world.structures.push({ type: 'campfire', x: 19, y: 18, built: true, progress: 1 });
+        };
+
+        Game.prototype.populateBuildMenu = function () {
+          this.buildCategories.innerHTML = '';
+          for (const [categoryName, itemList] of Object.entries(BUILD_CATEGORIES)) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'build-category';
+            wrapper.innerHTML = '<div class="build-category-title">' + categoryName + '</div>' +
+              '<div class="build-items">' + itemList.map(function (type) {
+                return '<button class="build-item" data-type="' + type + '">' + BUILDINGS[type].label + '</button>';
+              }).join('') + '</div>';
+            this.buildCategories.appendChild(wrapper);
+          }
+        };
+
+        Game.prototype.toggleBuildPanel = function () {
+          this.buildOpen = !this.buildOpen;
+          this.buildPanel.classList.toggle('closed', !this.buildOpen);
+        };
+
+        Game.prototype.showToast = function (message) {
+          this.toast.textContent = message;
+          this.toast.classList.add('visible');
+          const toast = this.toast;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(function () {
+            toast.classList.remove('visible');
+          }, 1100);
+        };
+
+        Game.prototype.resizeCanvas = function () {
+          const rect = this.canvas.parentElement.getBoundingClientRect();
+          const ratio = window.devicePixelRatio || 1;
+          this.canvas.width = Math.max(320, Math.round(rect.width * ratio));
+          this.canvas.height = Math.max(220, Math.round(rect.height * ratio));
+          this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        };
+
+        Game.prototype.getCanvasCoords = function (event) {
+          const rect = this.canvas.getBoundingClientRect();
+          return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+          };
+        };
+
+        Game.prototype.handlePointerDown = function (event) {
+          const pos = this.getCanvasCoords(event);
+          const tileX = Math.floor((pos.x + this.camera.x * this.camera.zoom) / (TILE_SIZE * this.camera.zoom));
+          const tileY = Math.floor((pos.y + this.camera.y * this.camera.zoom) / (TILE_SIZE * this.camera.zoom));
+          this.previewTile = { x: tileX, y: tileY };
+          this.dragging = { startX: pos.x, startY: pos.y, lastX: pos.x, lastY: pos.y };
+          this.canvas.setPointerCapture(event.pointerId);
+
+          if (this.buildMode) {
+            this.tryPlaceBuilding(tileX, tileY);
+            return;
+          }
+
+          const clicked = this.colonists.find(function (colonist) {
+            return Math.abs(colonist.x - tileX) < 0.5 && Math.abs(colonist.y - tileY) < 0.5;
+          });
+          if (clicked) {
+            this.selectedColonistId = clicked.id;
+          }
+          this.renderUI();
+        };
+
+        Game.prototype.handlePointerMove = function (event) {
+          if (!this.dragging) return;
+          const pos = this.getCanvasCoords(event);
+          const dx = pos.x - this.dragging.lastX;
+          const dy = pos.y - this.dragging.lastY;
+          this.camera.x -= dx / this.camera.zoom;
+          this.camera.y -= dy / this.camera.zoom;
+          this.dragging.lastX = pos.x;
+          this.dragging.lastY = pos.y;
+        };
+
+        Game.prototype.tryPlaceBuilding = function (tx, ty) {
+          if (!this.buildMode) return;
+          const buildingDef = BUILDINGS[this.buildMode];
+          const valid = this.isValidBuildTile(tx, ty);
+          if (!valid) {
+            this.showToast('Invalid placement');
+            return;
+          }
+
+          const canAfford = Object.keys(buildingDef.cost || {}).every(function (key) {
+            return this.resources[key] >= buildingDef.cost[key];
+          }, this);
+
+          if (!canAfford) {
+            this.showToast('Not enough resources');
+            return;
+          }
+
+          for (const [key, cost] of Object.entries(buildingDef.cost || {})) {
+            this.resources[key] -= cost;
+          }
+
+          this.world.structures.push({ type: this.buildMode, x: tx, y: ty, built: false, progress: 0 });
+          this.log.unshift('Built ' + buildingDef.label + ' at ' + tx + ', ' + ty + '.');
+          this.showToast(buildingDef.label + ' placed');
+          this.renderUI();
+        };
+
+        Game.prototype.isValidBuildTile = function (x, y) {
+          if (x < 0 || y < 0 || x >= WORLD_SIZE || y >= WORLD_SIZE) return false;
+          if (this.world.tiles.get(x + ',' + y) === 'water') return false;
+          return !this.world.structures.some(function (structure) {
+            return structure.x === x && structure.y === y;
+          });
+        };
+
+        Game.prototype.loop = function (ts) {
+          const delta = Math.min(0.03, (ts - (this.lastFrame || ts)) / 1000 || 0.016);
+          this.lastFrame = ts;
+          if (!this.paused) {
+            this.update(delta * this.speed);
+          }
+          this.render();
+          requestAnimationFrame(this.loop.bind(this));
+        };
+
+        Game.prototype.update = function (dt) {
+          this.time += dt;
+          this.day = Math.max(1, Math.floor(this.time / 20) + 1);
+
+          this.updateWorld(dt);
+          this.updateColonists(dt);
+          this.renderUI();
+
+          if (Math.floor(this.time) % 12 === 0) {
+            this.saveGame(false);
+          }
+        };
+
+        Game.prototype.updateWorld = function (dt) {
+          for (const plot of this.world.cropPlots) {
+            plot.growth += dt * 0.04;
+            if (plot.growth >= 1) {
+              plot.mature = true;
+            }
+          }
+
+          for (const structure of this.world.structures) {
+            if (!structure.built) {
+              structure.progress += dt * (1 / (BUILDINGS[structure.type].buildTime || 2));
+              if (structure.progress >= 1) {
+                structure.built = true;
+                structure.progress = 1;
+              }
+            }
+          }
+        };
+
+        Game.prototype.updateColonists = function (dt) {
+          const that = this;
+
+          this.colonists.forEach(function (colonist) {
+            colonist.hunger = clamp(colonist.hunger - dt * 0.7, 0, 100);
+            colonist.sleep = clamp(colonist.sleep - dt * 0.42, 0, 100);
+            colonist.fun = clamp(colonist.fun - dt * 0.25, 0, 100);
+
+            if (colonist.hunger < 35 && that.resources.food > 0) {
+              that.resources.food -= 1;
+              colonist.hunger = clamp(colonist.hunger + 40, 0, 100);
+              colonist.job = 'eat';
+              return;
+            }
+
+            if (colonist.sleep < 25) {
+              colonist.job = 'rest';
+              colonist.sleep = clamp(colonist.sleep + dt * 16, 0, 100);
+              return;
+            }
+
+            if (that.resources.wood < 22 && nearestNode(that.world, colonist.x, colonist.y, 'tree')) {
+              colonist.job = 'gather';
+              gatherNearestResource(that, colonist, 'tree', 'wood');
+              return;
+            }
+
+            if (that.resources.stone < 18 && nearestNode(that.world, colonist.x, colonist.y, 'rock')) {
+              colonist.job = 'gather';
+              gatherNearestResource(that, colonist, 'rock', 'stone');
+              return;
+            }
+
+            if (that.resources.food < 30) {
+              const crop = that.world.cropPlots.find(function (plot) {
+                return plot.mature;
+              });
+              if (crop) {
+                that.resources.food += that.harvestCrop(crop.x, crop.y);
+              } else {
+                const plot = maybeCreateFarmPlot(that, colonist);
+                if (plot) {
+                  colonist.job = 'farm';
+                  moveTowardTarget(colonist, plot.x, plot.y, 0.12);
+                  return;
+                }
+              }
+            }
+
+            if (Math.random() < 0.012) {
+              wanderTowards(colonist, randBetween(18, 22), randBetween(16, 22));
+              colonist.job = 'wander';
+            } else {
+              colonist.job = 'wander';
+            }
+          });
+        };
+
+        function nearestNode(world, x, y, type) {
+          let best = null;
+          let bestDist = Infinity;
+          for (const node of world.resourceNodes) {
+            if (node.type !== type) continue;
+            const d = Math.hypot(node.x - x, node.y - y);
+            if (d < bestDist) {
+              bestDist = d;
+              best = node;
+            }
+          }
+          return best;
+        }
+
+        function gatherNearestResource(game, colonist, type, resourceType) {
+          const node = nearestNode(game.world, colonist.x, colonist.y, type);
+          if (!node) return;
+          const dist = Math.hypot(node.x - colonist.x, node.y - colonist.y);
+          if (dist < 1.1) {
+            const index = game.world.resourceNodes.indexOf(node);
+            if (index >= 0) {
+              node.hp -= 1;
+              if (node.hp <= 0) {
+                game.world.resourceNodes.splice(index, 1);
+              }
+              game.resources[resourceType] += 1 + (type === 'tree' ? 1 : 0);
+              colonist.fun = clamp(colonist.fun + 5, 0, 100);
+            }
+            return;
+          }
+          moveTowardTarget(colonist, node.x, node.y, 0.12);
+        }
+
+        function maybeCreateFarmPlot(game, colonist) {
+          if (game.world.cropPlots.length < 8) {
+            const tx = Math.floor(colonist.x + randBetween(-3, 3));
+            const ty = Math.floor(colonist.y + randBetween(-3, 3));
+            if (tx >= 0 && ty >= 0 && tx < WORLD_SIZE && ty < WORLD_SIZE && game.world.tiles.get(tx + ',' + ty) !== 'water') {
+              const plot = { x: tx, y: ty, crop: 'wheat', growth: 0.08, mature: false };
+              game.world.cropPlots.push(plot);
+              return plot;
+            }
+          }
+          return null;
+        }
+
+        Game.prototype.harvestCrop = function (x, y) {
+          const plot = this.world.cropPlots.find(function (p) {
+            return p.x === x && p.y === y;
+          });
+          if (!plot || !plot.mature) return 0;
+          const yieldAmount = 3;
+          plot.growth = 0.06;
+          plot.mature = false;
+          return yieldAmount;
+        };
+
+        function moveTowardTarget(colonist, tx, ty, speed) {
+          const dx = tx - colonist.x;
+          const dy = ty - colonist.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const moveX = (dx / dist) * speed;
+          const moveY = (dy / dist) * speed;
+          const nextX = clamp(colonist.x + moveX, 0, WORLD_SIZE - 1);
+          const nextY = clamp(colonist.y + moveY, 0, WORLD_SIZE - 1);
+          colonist.x = nextX;
+          colonist.y = nextY;
+        }
+
+        function wanderTowards(colonist, targetX, targetY) {
+          moveTowardTarget(colonist, targetX, targetY, 0.08);
+        }
+
+        Game.prototype.render = function () {
+          const width = this.canvas.clientWidth;
+          const height = this.canvas.clientHeight;
+          this.ctx.clearRect(0, 0, width, height);
+          this.ctx.fillStyle = '#0b1821';
+          this.ctx.fillRect(0, 0, width, height);
+
+          const viewLeft = this.camera.x;
+          const viewTop = this.camera.y;
+
+          const startX = Math.max(0, Math.floor(viewLeft / (TILE_SIZE * this.camera.zoom)) - 1);
+          const endX = Math.min(WORLD_SIZE, Math.ceil((viewLeft + width / this.camera.zoom) / (TILE_SIZE * this.camera.zoom)) + 1);
+          const startY = Math.max(0, Math.floor(viewTop / (TILE_SIZE * this.camera.zoom)) - 1);
+          const endY = Math.min(WORLD_SIZE, Math.ceil((viewTop + height / this.camera.zoom) / (TILE_SIZE * this.camera.zoom)) + 1);
+
+          for (let y = startY; y < endY; y++) {
+            for (let x = startX; x < endX; x++) {
+              const drawX = x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+              const drawY = y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+              const tile = this.world.tiles.get(x + ',' + y) || 'grass';
+              this.ctx.fillStyle = TERRAIN[tile] || '#5a8d5d';
+              this.ctx.fillRect(drawX, drawY, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
+            }
+          }
+
+          this.drawResourceNodes(startX, endX, startY, endY);
+          this.drawStructures(startX, endX, startY, endY);
+          this.drawCropPlots(startX, endX, startY, endY);
+          this.drawColonists(startX, endX, startY, endY);
+
+          if (this.previewTile && this.buildMode) {
+            const px = this.previewTile.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+            const py = this.previewTile.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+            const valid = this.isValidBuildTile(this.previewTile.x, this.previewTile.y);
+            this.ctx.strokeStyle = valid ? '#7be0b8' : '#ff8e8e';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(px, py, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
+          }
+        };
+
+        Game.prototype.drawResourceNodes = function (startX, endX, startY, endY) {
+          for (const node of this.world.resourceNodes) {
+            if (node.x < startX || node.x >= endX || node.y < startY || node.y >= endY) continue;
+            const x = node.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+            const y = node.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+            const size = TILE_SIZE * this.camera.zoom * 0.34;
+            this.ctx.fillStyle = node.type === 'tree' ? '#417a36' : '#939aa1';
+            this.ctx.beginPath();
+            this.ctx.arc(x + TILE_SIZE * this.camera.zoom * 0.5, y + TILE_SIZE * this.camera.zoom * 0.5, size, 0, Math.PI * 2);
+            this.ctx.fill();
+          }
+        };
+
+        Game.prototype.drawStructures = function (startX, endX, startY, endY) {
+          for (const structure of this.world.structures) {
+            if (structure.x < startX || structure.x >= endX || structure.y < startY || structure.y >= endY) continue;
+            const x = structure.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+            const y = structure.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+            const color = BUILDINGS[structure.type].color;
+            this.ctx.fillStyle = color;
+            this.ctx.fillRect(x, y, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
+            if (!structure.built) {
+              this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
+              this.ctx.fillRect(x, y, TILE_SIZE * this.camera.zoom * structure.progress, 4);
+            }
+          }
+        };
+
+        Game.prototype.drawCropPlots = function (startX, endX, startY, endY) {
+          for (const plot of this.world.cropPlots) {
+            if (plot.x < startX || plot.x >= endX || plot.y < startY || plot.y >= endY) continue;
+            const x = plot.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+            const y = plot.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+            this.ctx.fillStyle = plot.mature ? '#b7e16b' : '#5c8a4f';
+            this.ctx.fillRect(x + 5, y + 5, TILE_SIZE * this.camera.zoom - 10, TILE_SIZE * this.camera.zoom - 10);
+          }
+        };
+
+        Game.prototype.drawColonists = function (startX, endX, startY, endY) {
+          for (const colonist of this.colonists) {
+            if (colonist.x < startX || colonist.x >= endX || colonist.y < startY || colonist.y >= endY) continue;
+            const x = colonist.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
+            const y = colonist.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
+            const radius = TILE_SIZE * this.camera.zoom * 0.28;
+            this.ctx.fillStyle = this.selectedColonistId === colonist.id ? '#7be0b8' : '#dfeaf8';
+            this.ctx.beginPath();
+            this.ctx.arc(x + TILE_SIZE * this.camera.zoom * 0.5, y + TILE_SIZE * this.camera.zoom * 0.5, radius, 0, Math.PI * 2);
+            this.ctx.fill();
+          }
+        };
+
+        Game.prototype.renderUI = function () {
+          const resourceEntries = Object.entries(this.resources);
+          this.resourceBar.innerHTML = resourceEntries.map(function ([key, value]) {
+            return '<div class="resource-pill">' + key + ': ' + Math.floor(value) + '</div>';
+          }).join('');
+
+          this.colonistList.innerHTML = this.colonists.map(function (colonist) {
+            return '<div class="colonist-item ' + (this.selectedColonistId === colonist.id ? 'selected' : '') + '" data-id="' + colonist.id + '"><span class="avatar">' + colonist.name.charAt(0) + '</span><div><div>' + colonist.name + '</div><small>' + colonist.job + '</small></div></div>';
+          }.bind(this)).join('');
+
+          this.colonistList.querySelectorAll('.colonist-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+              this.selectedColonistId = item.dataset.id;
+              this.renderUI();
+            }.bind(this));
+          }, this);
+
+          const selected = this.colonists.find(function (colonist) {
+            return colonist.id === this.selectedColonistId;
+          }.bind(this));
+
+          if (selected) {
+            this.selectedUnit.innerHTML = '<div class="status-line"><span>Name</span><strong>' + selected.name + '</strong></div>' +
+              '<div class="status-line"><span>Hunger</span><strong>' + Math.round(selected.hunger) + '%</strong></div>' +
+              '<div class="status-line"><span>Sleep</span><strong>' + Math.round(selected.sleep) + '%</strong></div>' +
+              '<div class="status-line"><span>Fun</span><strong>' + Math.round(selected.fun) + '%</strong></div>' +
+              '<div class="status-line"><span>Job</span><strong>' + selected.job + '</strong></div>';
+          }
+
+          this.colonySummary.innerHTML = '<div class="status-line"><span>Colonists</span><strong>' + this.colonists.length + '</strong></div>' +
+            '<div class="status-line"><span>Food</span><strong>' + Math.floor(this.resources.food) + '</strong></div>' +
+            '<div class="status-line"><span>Wood</span><strong>' + Math.floor(this.resources.wood) + '</strong></div>' +
+            '<div class="status-line"><span>Stone</span><strong>' + Math.floor(this.resources.stone) + '</strong></div>';
+
+          this.alertsBox.innerHTML = this.alerts.map(function (alert) {
+            return '<div class="alert-item">' + alert + '</div>';
+          }).join('');
+
+          this.eventLog.innerHTML = this.log.slice(0, 8).map(function (entry) {
+            return '<div class="log-entry">' + entry + '</div>';
+          }).join('');
+
+          this.timeLabel.textContent = 'Day ' + this.day;
+        };
+
+        Game.prototype.saveGame = function (showToast) {
+          const saveState = {
+            world: {
+              tiles: Array.from(this.world.tiles.entries()),
+              resourceNodes: this.world.resourceNodes,
+              structures: this.world.structures,
+              cropPlots: this.world.cropPlots
+            },
+            colonists: this.colonists,
+            resources: this.resources,
+            camera: this.camera,
+            selectedColonistId: this.selectedColonistId,
+            time: this.time,
+            day: this.day,
+            log: this.log,
+            alerts: this.alerts
+          };
+          localStorage.setItem(SAVE_KEY, JSON.stringify(saveState));
+          if (showToast !== false) this.showToast('Game saved');
+        };
+
+        Game.prototype.loadGame = function () {
+          const raw = localStorage.getItem(SAVE_KEY);
+          if (!raw) {
+            this.showToast('No save found');
+            return;
+          }
+          try {
+            const saveState = JSON.parse(raw);
+            this.world = createWorld(1);
+            this.world.tiles = new Map(saveState.world.tiles || []);
+            this.world.resourceNodes = saveState.world.resourceNodes || [];
+            this.world.structures = saveState.world.structures || [];
+            this.world.cropPlots = saveState.world.cropPlots || [];
+            this.colonists = saveState.colonists || [];
+            this.resources = saveState.resources || { ...DEFAULT_RESOURCES };
+            this.camera = saveState.camera || { x: 0, y: 0, zoom: 1 };
+            this.selectedColonistId = saveState.selectedColonistId || (this.colonists[0] ? this.colonists[0].id : null);
+            this.time = saveState.time || 0;
+            this.day = saveState.day || 1;
+            this.log = saveState.log || ['Save loaded.'];
+            this.alerts = saveState.alerts || ['The colony remains alive.'];
+            this.showToast('Game loaded');
+            this.renderUI();
+          } catch (error) {
+            this.showToast('Save failed');
+          }
+        };
+
+        Game.prototype.newWorld = function () {
+          this.world = createWorld(Math.random() * 1000);
+          this.colonists = [];
+          this.resources = { ...DEFAULT_RESOURCES };
+          this.camera = { x: 0, y: 0, zoom: 1 };
+          this.time = 0;
+          this.day = 1;
+          this.log = ['A new world begins.'];
+          this.alerts = ['A fresh colony is underway.'];
+          this.spawnColonists();
+          this.camera.x = 17 * TILE_SIZE;
+          this.camera.y = 17 * TILE_SIZE;
+          this.renderUI();
+          this.showToast('New world created');
+        };
+
+        const game = new Game();
+      })();
+    </script>
   </body>
 </html>
