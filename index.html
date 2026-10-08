@@ -98,7 +98,7 @@
         align-items: center;
       }
 
-      .btn, .speed-btn, .mini-btn {
+      .btn, .speed-btn, .mini-btn, .task-btn {
         appearance: none;
         border: 1px solid rgba(255,255,255,0.08);
         background: rgba(255,255,255,0.04);
@@ -109,7 +109,7 @@
         transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
       }
 
-      .btn:active, .speed-btn:active, .mini-btn:active {
+      .btn:active, .speed-btn:active, .mini-btn:active, .task-btn:active {
         transform: scale(0.98);
       }
 
@@ -206,6 +206,18 @@
         color: var(--text);
       }
 
+      .task-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .task-btn {
+        width: 100%;
+        font-size: 0.75rem;
+        padding: 7px 8px;
+      }
+
       .viewport-shell {
         position: relative;
         overflow: hidden;
@@ -226,7 +238,7 @@
         position: absolute;
         left: 12px;
         top: 12px;
-        width: min(290px, calc(100% - 24px));
+        width: min(300px, calc(100% - 24px));
         max-height: 70%;
         background: rgba(8, 14, 18, 0.94);
         border: 1px solid var(--border);
@@ -237,7 +249,7 @@
       }
 
       .build-panel.closed {
-        transform: translateX(-105%);
+        transform: translateX(-108%);
         opacity: 0;
         pointer-events: none;
       }
@@ -506,9 +518,11 @@
             sleep: 78,
             fun: 70,
             job: 'wander',
+            task: null,
             target: null,
             mood: 0.8,
-            health: 100
+            health: 100,
+            tint: ['#dfeaf8', '#d7c0b6', '#cfe0ff', '#ebd7ad'][index % 4]
           };
         }
 
@@ -543,6 +557,7 @@
           this.buildCategories = document.getElementById('buildCategories');
           this.toast = document.getElementById('toast');
           this.pauseBtn = document.getElementById('pauseBtn');
+          this.buildToggleBtn = document.getElementById('buildToggleBtn');
 
           this.setupUI();
           this.spawnColonists();
@@ -556,6 +571,7 @@
 
         Game.prototype.setupUI = function () {
           const that = this;
+
           document.getElementById('pauseBtn').addEventListener('click', function () {
             that.paused = !that.paused;
             this.textContent = that.paused ? 'Resume' : 'Pause';
@@ -571,10 +587,19 @@
           });
 
           document.getElementById('buildToggleBtn').addEventListener('click', function () {
-            that.toggleBuildPanel();
+            if (that.buildMode) {
+              that.exitBuildMode();
+            } else {
+              that.toggleBuildPanel();
+              that.buildMode = 'wall';
+              that.showToast('Build mode: Wall');
+              that.refreshBuildButtons();
+              that.buildToggleBtn.textContent = 'Build: On';
+            }
           });
 
           document.getElementById('hideBuildBtn').addEventListener('click', function () {
+            that.exitBuildMode();
             that.toggleBuildPanel();
           });
 
@@ -594,11 +619,18 @@
             const item = event.target.closest('.build-item');
             if (!item) return;
             const type = item.dataset.type;
+            if (that.buildMode === type) {
+              that.exitBuildMode();
+              that.buildToggleBtn.textContent = 'Build';
+              that.showToast('Build mode off');
+              return;
+            }
             that.buildMode = type;
-            document.querySelectorAll('.build-item').forEach(function (button) {
-              button.classList.toggle('active', button === item);
-            });
+            that.buildOpen = true;
+            that.buildPanel.classList.remove('closed');
+            that.refreshBuildButtons();
             that.showToast('Build mode: ' + BUILDINGS[type].label);
+            that.buildToggleBtn.textContent = 'Build: On';
           });
 
           window.addEventListener('resize', function () {
@@ -621,6 +653,15 @@
             that.dragging = null;
           });
 
+          this.canvas.addEventListener('contextmenu', function (event) {
+            event.preventDefault();
+            if (that.buildMode) {
+              that.exitBuildMode();
+              that.buildToggleBtn.textContent = 'Build';
+              that.showToast('Build mode canceled');
+            }
+          });
+
           this.canvas.addEventListener('wheel', function (event) {
             event.preventDefault();
             const delta = event.deltaY * -0.0015;
@@ -634,12 +675,32 @@
               that.pauseBtn.textContent = that.paused ? 'Resume' : 'Pause';
             }
             if (event.key.toLowerCase() === 'b') {
-              that.toggleBuildPanel();
+              that.buildOpen = !that.buildOpen;
+              that.buildPanel.classList.toggle('closed', !that.buildOpen);
+            }
+            if (event.key === 'Escape') {
+              that.exitBuildMode();
+              that.buildToggleBtn.textContent = 'Build';
+              that.showToast('Build mode off');
             }
             if (event.key.toLowerCase() === 's') {
               that.saveGame();
             }
           });
+        };
+
+        Game.prototype.refreshBuildButtons = function () {
+          document.querySelectorAll('.build-item').forEach(function (button) {
+            button.classList.toggle('active', this.buildMode === button.dataset.type);
+          }, this);
+        };
+
+        Game.prototype.exitBuildMode = function () {
+          this.buildMode = null;
+          this.previewTile = null;
+          this.refreshBuildButtons();
+          this.buildPanel.classList.remove('closed');
+          this.buildOpen = true;
         };
 
         Game.prototype.spawnColonists = function () {
@@ -715,6 +776,8 @@
           });
           if (clicked) {
             this.selectedColonistId = clicked.id;
+          } else {
+            this.selectedColonistId = null;
           }
           this.renderUI();
         };
@@ -808,6 +871,24 @@
           }
         };
 
+        Game.prototype.assignTask = function (task, targetType) {
+          const colonist = this.getSelectedColonist();
+          if (!colonist) return;
+          colonist.task = task;
+          colonist.targetType = targetType || null;
+          colonist.target = null;
+          this.log.unshift(colonist.name + ' assigned to ' + task + '.');
+          this.showToast(colonist.name + ' -> ' + task);
+          this.renderUI();
+        };
+
+        Game.prototype.getSelectedColonist = function () {
+          if (!this.selectedColonistId) return null;
+          return this.colonists.find(function (colonist) {
+            return colonist.id === this.selectedColonistId;
+          }.bind(this)) || null;
+        };
+
         Game.prototype.updateColonists = function (dt) {
           const that = this;
 
@@ -815,6 +896,56 @@
             colonist.hunger = clamp(colonist.hunger - dt * 0.7, 0, 100);
             colonist.sleep = clamp(colonist.sleep - dt * 0.42, 0, 100);
             colonist.fun = clamp(colonist.fun - dt * 0.25, 0, 100);
+
+            if (colonist.task === 'rest') {
+              colonist.job = 'rest';
+              colonist.sleep = clamp(colonist.sleep + dt * 18, 0, 100);
+              if (colonist.sleep > 70) {
+                colonist.task = null;
+              }
+              return;
+            }
+
+            if (colonist.task === 'eat') {
+              colonist.job = 'eat';
+              if (that.resources.food > 0) {
+                that.resources.food -= 1;
+                colonist.hunger = clamp(colonist.hunger + 45, 0, 100);
+                colonist.task = null;
+              }
+              return;
+            }
+
+            if (colonist.task === 'gatherWood') {
+              colonist.job = 'gather wood';
+              gatherNearestResource(that, colonist, 'tree', 'wood');
+              if (that.resources.wood > 24) colonist.task = null;
+              return;
+            }
+
+            if (colonist.task === 'gatherStone') {
+              colonist.job = 'gather stone';
+              gatherNearestResource(that, colonist, 'rock', 'stone');
+              if (that.resources.stone > 20) colonist.task = null;
+              return;
+            }
+
+            if (colonist.task === 'farm') {
+              colonist.job = 'farm';
+              const matureCrop = that.world.cropPlots.find(function (plot) {
+                return plot.mature;
+              });
+              if (matureCrop) {
+                that.resources.food += that.harvestCrop(matureCrop.x, matureCrop.y);
+                colonist.task = null;
+                return;
+              }
+              const plot = maybeCreateFarmPlot(that, colonist);
+              if (plot) {
+                moveTowardTarget(colonist, plot.x, plot.y, 0.12);
+              }
+              return;
+            }
 
             if (colonist.hunger < 35 && that.resources.food > 0) {
               that.resources.food -= 1;
@@ -959,8 +1090,12 @@
               const drawX = x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
               const drawY = y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
               const tile = this.world.tiles.get(x + ',' + y) || 'grass';
-              this.ctx.fillStyle = TERRAIN[tile] || '#5a8d5d';
+              const base = TERRAIN[tile] || '#5a8d5d';
+              this.ctx.fillStyle = base;
               this.ctx.fillRect(drawX, drawY, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
+
+              this.ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+              this.ctx.strokeRect(drawX + 0.5, drawY + 0.5, TILE_SIZE * this.camera.zoom - 1, TILE_SIZE * this.camera.zoom - 1);
             }
           }
 
@@ -986,9 +1121,12 @@
             const y = node.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
             const size = TILE_SIZE * this.camera.zoom * 0.34;
             this.ctx.fillStyle = node.type === 'tree' ? '#417a36' : '#939aa1';
+            this.ctx.shadowColor = 'rgba(0,0,0,0.28)';
+            this.ctx.shadowBlur = 6;
             this.ctx.beginPath();
             this.ctx.arc(x + TILE_SIZE * this.camera.zoom * 0.5, y + TILE_SIZE * this.camera.zoom * 0.5, size, 0, Math.PI * 2);
             this.ctx.fill();
+            this.ctx.shadowBlur = 0;
           }
         };
 
@@ -999,10 +1137,12 @@
             const y = structure.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
             const color = BUILDINGS[structure.type].color;
             this.ctx.fillStyle = color;
-            this.ctx.fillRect(x, y, TILE_SIZE * this.camera.zoom, TILE_SIZE * this.camera.zoom);
+            this.ctx.fillRect(x + 2, y + 2, TILE_SIZE * this.camera.zoom - 4, TILE_SIZE * this.camera.zoom - 4);
+            this.ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+            this.ctx.strokeRect(x + 2, y + 2, TILE_SIZE * this.camera.zoom - 4, TILE_SIZE * this.camera.zoom - 4);
             if (!structure.built) {
               this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
-              this.ctx.fillRect(x, y, TILE_SIZE * this.camera.zoom * structure.progress, 4);
+              this.ctx.fillRect(x + 4, y + 4, (TILE_SIZE * this.camera.zoom - 8) * structure.progress, 4);
             }
           }
         };
@@ -1013,7 +1153,9 @@
             const x = plot.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const y = plot.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
             this.ctx.fillStyle = plot.mature ? '#b7e16b' : '#5c8a4f';
-            this.ctx.fillRect(x + 5, y + 5, TILE_SIZE * this.camera.zoom - 10, TILE_SIZE * this.camera.zoom - 10);
+            this.ctx.fillRect(x + 6, y + 6, TILE_SIZE * this.camera.zoom - 12, TILE_SIZE * this.camera.zoom - 12);
+            this.ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+            this.ctx.strokeRect(x + 6, y + 6, TILE_SIZE * this.camera.zoom - 12, TILE_SIZE * this.camera.zoom - 12);
           }
         };
 
@@ -1022,11 +1164,19 @@
             if (colonist.x < startX || colonist.x >= endX || colonist.y < startY || colonist.y >= endY) continue;
             const x = colonist.x * TILE_SIZE * this.camera.zoom - this.camera.x * this.camera.zoom;
             const y = colonist.y * TILE_SIZE * this.camera.zoom - this.camera.y * this.camera.zoom;
-            const radius = TILE_SIZE * this.camera.zoom * 0.28;
-            this.ctx.fillStyle = this.selectedColonistId === colonist.id ? '#7be0b8' : '#dfeaf8';
+            const px = x + TILE_SIZE * this.camera.zoom * 0.5;
+            const py = y + TILE_SIZE * this.camera.zoom * 0.5;
+            const radius = TILE_SIZE * this.camera.zoom * 0.24;
+            this.ctx.fillStyle = this.selectedColonistId === colonist.id ? '#7be0b8' : colonist.tint || '#dfeaf8';
             this.ctx.beginPath();
-            this.ctx.arc(x + TILE_SIZE * this.camera.zoom * 0.5, y + TILE_SIZE * this.camera.zoom * 0.5, radius, 0, Math.PI * 2);
+            this.ctx.arc(px, py, radius, 0, Math.PI * 2);
             this.ctx.fill();
+
+            this.ctx.fillStyle = '#1a2731';
+            this.ctx.fillRect(px - 3, py + radius + 3, 6, 8);
+
+            this.ctx.fillStyle = '#1a2731';
+            this.ctx.fillRect(px - 11, py + 5, 22, 4);
           }
         };
 
@@ -1037,7 +1187,7 @@
           }).join('');
 
           this.colonistList.innerHTML = this.colonists.map(function (colonist) {
-            return '<div class="colonist-item ' + (this.selectedColonistId === colonist.id ? 'selected' : '') + '" data-id="' + colonist.id + '"><span class="avatar">' + colonist.name.charAt(0) + '</span><div><div>' + colonist.name + '</div><small>' + colonist.job + '</small></div></div>';
+            return '<div class="colonist-item ' + (this.selectedColonistId === colonist.id ? 'selected' : '') + '" data-id="' + colonist.id + '"><span class="avatar">' + colonist.name.charAt(0) + '</span><div><div>' + colonist.name + '</div><small>' + (colonist.task || colonist.job) + '</small></div></div>';
           }.bind(this)).join('');
 
           this.colonistList.querySelectorAll('.colonist-item').forEach(function (item) {
@@ -1047,22 +1197,47 @@
             }.bind(this));
           }, this);
 
-          const selected = this.colonists.find(function (colonist) {
-            return colonist.id === this.selectedColonistId;
-          }.bind(this));
+          const selected = this.getSelectedColonist();
 
           if (selected) {
+            const actionButtons = [
+              '<button class="task-btn" data-task="gatherWood">Gather Wood</button>',
+              '<button class="task-btn" data-task="gatherStone">Gather Stone</button>',
+              '<button class="task-btn" data-task="farm">Farm</button>',
+              '<button class="task-btn" data-task="rest">Rest</button>',
+              '<button class="task-btn" data-task="eat">Eat</button>',
+              '<button class="task-btn" data-task="clear">Clear</button>'
+            ].join('');
+
             this.selectedUnit.innerHTML = '<div class="status-line"><span>Name</span><strong>' + selected.name + '</strong></div>' +
               '<div class="status-line"><span>Hunger</span><strong>' + Math.round(selected.hunger) + '%</strong></div>' +
               '<div class="status-line"><span>Sleep</span><strong>' + Math.round(selected.sleep) + '%</strong></div>' +
               '<div class="status-line"><span>Fun</span><strong>' + Math.round(selected.fun) + '%</strong></div>' +
-              '<div class="status-line"><span>Job</span><strong>' + selected.job + '</strong></div>';
+              '<div class="status-line"><span>Task</span><strong>' + (selected.task || selected.job) + '</strong></div>' +
+              '<div class="task-grid">' + actionButtons + '</div>';
+
+            this.selectedUnit.querySelectorAll('.task-btn').forEach(function (button) {
+              button.addEventListener('click', function () {
+                const task = button.dataset.task;
+                if (task === 'clear') {
+                  selected.task = null;
+                  selected.job = 'idle';
+                  this.renderUI();
+                  return;
+                }
+                this.assignTask(task, null);
+              }.bind(this));
+            }, this);
+          } else {
+            this.selectedUnit.innerHTML = '<div class="status-line"><span>Selection</span><strong>None</strong></div>' +
+              '<div class="status-line"><span>Tip</span><strong>Click a colonist</strong></div>';
           }
 
           this.colonySummary.innerHTML = '<div class="status-line"><span>Colonists</span><strong>' + this.colonists.length + '</strong></div>' +
             '<div class="status-line"><span>Food</span><strong>' + Math.floor(this.resources.food) + '</strong></div>' +
             '<div class="status-line"><span>Wood</span><strong>' + Math.floor(this.resources.wood) + '</strong></div>' +
-            '<div class="status-line"><span>Stone</span><strong>' + Math.floor(this.resources.stone) + '</strong></div>';
+            '<div class="status-line"><span>Stone</span><strong>' + Math.floor(this.resources.stone) + '</strong></div>' +
+            '<div class="status-line"><span>Build</span><strong>' + (this.buildMode ? ('On: ' + BUILDINGS[this.buildMode].label) : 'Off') + '</strong></div>';
 
           this.alertsBox.innerHTML = this.alerts.map(function (alert) {
             return '<div class="alert-item">' + alert + '</div>';
@@ -1073,6 +1248,7 @@
           }).join('');
 
           this.timeLabel.textContent = 'Day ' + this.day;
+          this.buildToggleBtn.textContent = this.buildMode ? 'Build: On' : 'Build';
         };
 
         Game.prototype.saveGame = function (showToast) {
@@ -1090,7 +1266,8 @@
             time: this.time,
             day: this.day,
             log: this.log,
-            alerts: this.alerts
+            alerts: this.alerts,
+            buildMode: this.buildMode
           };
           localStorage.setItem(SAVE_KEY, JSON.stringify(saveState));
           if (showToast !== false) this.showToast('Game saved');
@@ -1117,6 +1294,8 @@
             this.day = saveState.day || 1;
             this.log = saveState.log || ['Save loaded.'];
             this.alerts = saveState.alerts || ['The colony remains alive.'];
+            this.buildMode = saveState.buildMode || null;
+            this.refreshBuildButtons();
             this.showToast('Game loaded');
             this.renderUI();
           } catch (error) {
@@ -1133,9 +1312,11 @@
           this.day = 1;
           this.log = ['A new world begins.'];
           this.alerts = ['A fresh colony is underway.'];
+          this.buildMode = null;
           this.spawnColonists();
           this.camera.x = 17 * TILE_SIZE;
           this.camera.y = 17 * TILE_SIZE;
+          this.refreshBuildButtons();
           this.renderUI();
           this.showToast('New world created');
         };
